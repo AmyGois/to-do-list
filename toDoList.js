@@ -80,13 +80,13 @@ const projects = [];
 
 const projectManager = (() => {
   const createNewProject = (title, description) => {
-    const projectAlreadyExists = projects.find((project) => {
+    /* const projectAlreadyExists = projects.find((project) => {
       return project.title === title;
     });
 
     if (typeof projectAlreadyExists === 'object') {
       return false; // Can't create new project because one with the same title already exists
-    }
+    } */ /* This can cause problems when editing the title */
     const newProject = new Project(title, description);
     projects.push(newProject);
   };
@@ -96,6 +96,7 @@ const projectManager = (() => {
     projects.splice(index, 1);
   };
 
+  /* Might not need this */
   const deleteProjectByName = (projectTitle) => {
     projects.forEach((project) => {
       if (project.title === projectTitle) {
@@ -105,11 +106,11 @@ const projectManager = (() => {
   };
 
   const editProjectTitle = (projectIndex, newTitle) => {
-    projects[projectIndex].title = newTitle;
+    projects[Number(projectIndex)].title = newTitle;
   };
 
   const editProjectDescription = (projectIndex, newDescription) => {
-    projects[projectIndex].description = newDescription;
+    projects[Number(projectIndex)].description = newDescription;
   };
 
   const revealAllProjects = () => {
@@ -127,4 +128,88 @@ const projectManager = (() => {
   };
 })();
 
-export { projectManager };
+/* ********************************************************************
+Task Manager
+******************************************************************** */
+const taskManager = (() => {
+  const createNewTask = (
+    projectIndex,
+    title,
+    description,
+    dueDate,
+    priority,
+    status,
+  ) => {
+    const project = projects[Number(projectIndex)];
+    /* const taskAlreadyExists = project.tasks.find((task) => {
+      return task.title === title;
+    });
+
+    if (typeof taskAlreadyExists === 'object') {
+      return false; // Can't create new task because one with the same title already exists
+    } */ /* This can cause problems when editing the title */
+    project.tasks.push(new Task(title, description, dueDate, priority, status));
+  };
+
+  const deleteTask = (projectIndex, taskIndex) => {
+    const project = projects[Number(projectIndex)];
+    const index = Number(taskIndex);
+    project.tasks.splice(index, 1);
+  };
+
+  const editTaskTitle = (projectIndex, taskIndex, newTitle) => {
+    const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
+    task.title = newTitle;
+  };
+
+  const editTaskDescription = (projectIndex, taskIndex, newDescription) => {
+    const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
+    task.description = newDescription;
+  };
+
+  const editTaskDueDate = (projectIndex, taskIndex, newDueDate) => {
+    const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
+    task.dueDate = newDueDate;
+  };
+
+  const editTaskPriority = (projectIndex, taskIndex, newPriority) => {
+    const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
+    task.priority = newPriority;
+  };
+
+  const editTaskStatus = (projectIndex, taskIndex, newStatus) => {
+    const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
+    task.status = newStatus;
+  };
+
+  const revealTask = (projectIndex, taskIndex) => {
+    const taskCopy = deepCopyObject(
+      projects[Number(projectIndex)].tasks[Number(taskIndex)],
+    );
+    return taskCopy;
+  };
+
+  return {
+    createNewTask,
+    deleteTask,
+    editTaskTitle,
+    editTaskDescription,
+    editTaskDueDate,
+    editTaskPriority,
+    editTaskStatus,
+    revealTask,
+  };
+})();
+
+/* projectManager.createNewProject(
+  'cleaning',
+  'kitchen, bathroom, bedroom, livingroom',
+);
+projectManager.createNewProject('housework', 'cooking, washing, ironing');
+projectManager.createNewProject('shopping', 'food, cleaning products, clothes');
+
+taskManager.createNewTask(1, 'bake cake', '', '23-07-2023', 'medium', 'to do');
+taskManager.createNewTask(1, 'cook dinner', '', '23-07-2023', 'high', 'to do');
+taskManager.createNewTask(1, 'cook tea', '', '23-07-2023', 'high', 'to do'); */
+
+/* export { projectManager, taskManager }; */
