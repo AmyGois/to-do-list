@@ -1,10 +1,14 @@
 /* Contents:
 
-Constructors - Task, Step & Project
+  Constructors - Task, Step & Project
 
-Functions to deep clone arrays and objects
+  Functions to deep clone arrays and objects
 
-Project Manager
+  Project Manager
+
+  Task Manager
+
+  Step Manager
 */
 
 /* ********************************************************************
@@ -25,7 +29,7 @@ class Task {
 
 class Step {
   constructor(description, status) {
-    this.title = description;
+    this.description = description;
     this.status = status;
   }
 }
@@ -74,7 +78,7 @@ const deepCopyObject = (object) => {
 Project Manager
   - Create & delete projects
   - Edit project titles & descriptions
-  - Create a safe copy of the projects array for public use
+  - Create a safe copy of a project & of the projects array for public use
 ******************************************************************** */
 const projects = [];
 
@@ -113,6 +117,11 @@ const projectManager = (() => {
     projects[Number(projectIndex)].description = newDescription;
   };
 
+  const revealProject = (projectIndex) => {
+    const projectCopy = deepCopyObject(projects[projectIndex]);
+    return projectCopy;
+  };
+
   const revealAllProjects = () => {
     const projectsCopy = deepCopyArray(projects);
     return projectsCopy;
@@ -124,12 +133,16 @@ const projectManager = (() => {
     deleteProjectByName,
     editProjectTitle,
     editProjectDescription,
+    revealProject,
     revealAllProjects,
   };
 })();
 
 /* ********************************************************************
 Task Manager
+  - Create & delete tasks in a project
+  - Edit task title, description, due date, priority & status
+  - Create a safe copy of a single task for public use
 ******************************************************************** */
 const taskManager = (() => {
   const createNewTask = (
@@ -201,6 +214,64 @@ const taskManager = (() => {
   };
 })();
 
+/* ********************************************************************
+Step Manager
+  - Create & delete steps in a task
+  - Edit step description & status
+  - Create a sfe copy of a single step for public use
+******************************************************************** */
+
+const stepManager = (() => {
+  const createNewStep = (projectIndex, taskIndex, description, status) => {
+    const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
+    task.steps.push(new Step(description, status));
+  };
+
+  const deleteStep = (projectIndex, taskIndex, stepIndex) => {
+    const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
+    const index = Number(stepIndex);
+    task.steps.splice(index, 1);
+  };
+
+  const editStepDescription = (
+    projectIndex,
+    taskIndex,
+    stepIndex,
+    newDescription,
+  ) => {
+    const step =
+      projects[Number(projectIndex)].tasks[Number(taskIndex)].steps[
+        Number(stepIndex)
+      ];
+    step.description = newDescription;
+  };
+
+  const editStepStatus = (projectIndex, taskIndex, stepIndex, newStatus) => {
+    const step =
+      projects[Number(projectIndex)].tasks[Number(taskIndex)].steps[
+        Number(stepIndex)
+      ];
+    step.status = newStatus;
+  };
+
+  const revealStep = (projectIndex, taskIndex, stepIndex) => {
+    const stepCopy = deepCopyObject(
+      projects[Number(projectIndex)].tasks[Number(taskIndex)].steps[
+        Number(stepIndex)
+      ],
+    );
+    return stepCopy;
+  };
+
+  return {
+    createNewStep,
+    deleteStep,
+    editStepDescription,
+    editStepStatus,
+    revealStep,
+  };
+})();
+
 /* projectManager.createNewProject(
   'cleaning',
   'kitchen, bathroom, bedroom, livingroom',
@@ -210,6 +281,10 @@ projectManager.createNewProject('shopping', 'food, cleaning products, clothes');
 
 taskManager.createNewTask(1, 'bake cake', '', '23-07-2023', 'medium', 'to do');
 taskManager.createNewTask(1, 'cook dinner', '', '23-07-2023', 'high', 'to do');
-taskManager.createNewTask(1, 'cook tea', '', '23-07-2023', 'high', 'to do'); */
+taskManager.createNewTask(1, 'cook tea', '', '23-07-2023', 'high', 'to do');
 
-/* export { projectManager, taskManager }; */
+stepManager.createNewStep(1, 0, 'gather ingredients', 'to do');
+stepManager.createNewStep(1, 0, 'mix ingredients', 'to do');
+stepManager.createNewStep(1, 0, 'bake in oven', 'to do'); */
+
+/* export { projectManager, taskManager, stepManager }; */
