@@ -11,6 +11,8 @@
   Step Manager
 */
 
+import mediator from './mediator';
+
 /* ********************************************************************
 Constructors - Task, Step & Project
   - Step goes inside Task.steps[]
@@ -42,10 +44,11 @@ class Project {
   }
 }
 
+const projects = [];
+
 /* ********************************************************************
 Functions to deep clone arrays and objects
 ******************************************************************** */
-
 const deepCopyArray = (array) => {
   const arrayCopy = [];
   array.forEach((item) => {
@@ -80,8 +83,6 @@ Project Manager
   - Edit project titles & descriptions
   - Create a safe copy of a project & of the projects array for public use
 ******************************************************************** */
-const projects = [];
-
 const projectManager = (() => {
   const createNewProject = (title, description) => {
     /* const projectAlreadyExists = projects.find((project) => {
@@ -127,6 +128,8 @@ const projectManager = (() => {
     return projectsCopy;
   };
 
+  const subscribe = () => {};
+
   return {
     createNewProject,
     deleteProject,
@@ -135,6 +138,7 @@ const projectManager = (() => {
     editProjectDescription,
     revealProject,
     revealAllProjects,
+    subscribe,
   };
 })();
 
@@ -202,6 +206,8 @@ const taskManager = (() => {
     return taskCopy;
   };
 
+  const subscribe = () => {};
+
   return {
     createNewTask,
     deleteTask,
@@ -211,6 +217,7 @@ const taskManager = (() => {
     editTaskPriority,
     editTaskStatus,
     revealTask,
+    subscribe,
   };
 })();
 
@@ -220,7 +227,6 @@ Step Manager
   - Edit step description & status
   - Create a sfe copy of a single step for public use
 ******************************************************************** */
-
 const stepManager = (() => {
   const createNewStep = (projectIndex, taskIndex, description, status) => {
     const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
@@ -263,12 +269,15 @@ const stepManager = (() => {
     return stepCopy;
   };
 
+  const subscribe = () => {};
+
   return {
     createNewStep,
     deleteStep,
     editStepDescription,
     editStepStatus,
     revealStep,
+    subscribe,
   };
 })();
 
@@ -287,4 +296,4 @@ stepManager.createNewStep(1, 0, 'gather ingredients', 'to do');
 stepManager.createNewStep(1, 0, 'mix ingredients', 'to do');
 stepManager.createNewStep(1, 0, 'bake in oven', 'to do'); */
 
-/* export { projectManager, taskManager, stepManager }; */
+export { projectManager, taskManager, stepManager };
