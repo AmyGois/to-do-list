@@ -15,7 +15,7 @@ const storageManager = (() => {
   };
 
   const subscribe = () => {
-    mediator.subscribe('updated projects', setStorage);
+    mediator.subscribe('updated all projects', setStorage);
   };
 
   return { getStorage, setStorage, subscribe };

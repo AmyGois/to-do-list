@@ -94,11 +94,19 @@ const projectManager = (() => {
     } */ /* This can cause problems when editing the title */
     const newProject = new Project(title, description);
     projects.push(newProject);
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
+    mediator.publish(
+      'new project created',
+      deepCopyObject(projects[projects.length - 1]),
+    );
   };
 
   const deleteProject = (projectIndex) => {
     const index = Number(projectIndex);
     projects.splice(index, 1);
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
   };
 
   /* Might not need this */
@@ -108,24 +116,40 @@ const projectManager = (() => {
         projects.splice(projects.indexOf(project), 1);
       }
     });
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
   };
 
   const editProjectTitle = (projectIndex, newTitle) => {
     projects[Number(projectIndex)].title = newTitle;
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
+    mediator.publish(
+      'updated project',
+      deepCopyObject(projects[Number(projectIndex)]),
+    );
   };
 
   const editProjectDescription = (projectIndex, newDescription) => {
     projects[Number(projectIndex)].description = newDescription;
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
+    mediator.publish(
+      'updated project',
+      deepCopyObject(projects[Number(projectIndex)]),
+    );
   };
 
   const revealProject = (projectIndex) => {
-    const projectCopy = deepCopyObject(projects[projectIndex]);
-    return projectCopy;
+    const projectCopy = deepCopyObject(projects[Number(projectIndex)]);
+
+    mediator.publish('revealed project', projectCopy);
   };
 
   const revealAllProjects = () => {
     const projectsCopy = deepCopyArray(projects);
-    return projectsCopy;
+
+    mediator.publish('revealed all projects', projectsCopy);
   };
 
   const subscribe = () => {};
@@ -166,44 +190,68 @@ const taskManager = (() => {
       return false; // Can't create new task because one with the same title already exists
     } */ /* This can cause problems when editing the title */
     project.tasks.push(new Task(title, description, dueDate, priority, status));
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
+    mediator.publish(
+      'new task created',
+      deepCopyObject(project.tasks[project.tasks.length - 1]),
+    );
   };
 
   const deleteTask = (projectIndex, taskIndex) => {
     const project = projects[Number(projectIndex)];
     const index = Number(taskIndex);
     project.tasks.splice(index, 1);
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
   };
 
   const editTaskTitle = (projectIndex, taskIndex, newTitle) => {
     const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
     task.title = newTitle;
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
+    mediator.publish('updated task', deepCopyObject(task));
   };
 
   const editTaskDescription = (projectIndex, taskIndex, newDescription) => {
     const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
     task.description = newDescription;
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
+    mediator.publish('updated task', deepCopyObject(task));
   };
 
   const editTaskDueDate = (projectIndex, taskIndex, newDueDate) => {
     const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
     task.dueDate = newDueDate;
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
+    mediator.publish('updated task', deepCopyObject(task));
   };
 
   const editTaskPriority = (projectIndex, taskIndex, newPriority) => {
     const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
     task.priority = newPriority;
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
+    mediator.publish('updated task', deepCopyObject(task));
   };
 
   const editTaskStatus = (projectIndex, taskIndex, newStatus) => {
     const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
     task.status = newStatus;
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
+    mediator.publish('updated task', deepCopyObject(task));
   };
 
   const revealTask = (projectIndex, taskIndex) => {
     const taskCopy = deepCopyObject(
       projects[Number(projectIndex)].tasks[Number(taskIndex)],
     );
-    return taskCopy;
+
+    mediator.publish('revealed task', taskCopy);
   };
 
   const subscribe = () => {};
@@ -231,12 +279,20 @@ const stepManager = (() => {
   const createNewStep = (projectIndex, taskIndex, description, status) => {
     const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
     task.steps.push(new Step(description, status));
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
+    mediator.publish(
+      'new step created',
+      deepCopyObject(task.steps[task.steps.length - 1]),
+    );
   };
 
   const deleteStep = (projectIndex, taskIndex, stepIndex) => {
     const task = projects[Number(projectIndex)].tasks[Number(taskIndex)];
     const index = Number(stepIndex);
     task.steps.splice(index, 1);
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
   };
 
   const editStepDescription = (
@@ -250,6 +306,9 @@ const stepManager = (() => {
         Number(stepIndex)
       ];
     step.description = newDescription;
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
+    mediator.publish('updated step', deepCopyObject(step));
   };
 
   const editStepStatus = (projectIndex, taskIndex, stepIndex, newStatus) => {
@@ -258,6 +317,9 @@ const stepManager = (() => {
         Number(stepIndex)
       ];
     step.status = newStatus;
+
+    mediator.publish('updated all projects', deepCopyArray(projects));
+    mediator.publish('updated step', deepCopyObject(step));
   };
 
   const revealStep = (projectIndex, taskIndex, stepIndex) => {
@@ -266,6 +328,8 @@ const stepManager = (() => {
         Number(stepIndex)
       ],
     );
+
+    mediator.publish('revealed step', stepCopy);
     return stepCopy;
   };
 
@@ -280,20 +344,5 @@ const stepManager = (() => {
     subscribe,
   };
 })();
-
-/* projectManager.createNewProject(
-  'cleaning',
-  'kitchen, bathroom, bedroom, livingroom',
-);
-projectManager.createNewProject('housework', 'cooking, washing, ironing');
-projectManager.createNewProject('shopping', 'food, cleaning products, clothes');
-
-taskManager.createNewTask(1, 'bake cake', '', '23-07-2023', 'medium', 'to do');
-taskManager.createNewTask(1, 'cook dinner', '', '23-07-2023', 'high', 'to do');
-taskManager.createNewTask(1, 'cook tea', '', '23-07-2023', 'high', 'to do');
-
-stepManager.createNewStep(1, 0, 'gather ingredients', 'to do');
-stepManager.createNewStep(1, 0, 'mix ingredients', 'to do');
-stepManager.createNewStep(1, 0, 'bake in oven', 'to do'); */
 
 export { projectManager, taskManager, stepManager };
