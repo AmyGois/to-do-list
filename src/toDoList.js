@@ -10,7 +10,6 @@
 
   Step Manager
 */
-
 import mediator from './mediator';
 
 /* ********************************************************************
@@ -82,16 +81,10 @@ Project Manager
   - Create & delete projects
   - Edit project titles & descriptions
   - Create a safe copy of a project & of the projects array for public use
+  - Subscribe to mediator events
 ******************************************************************** */
 const projectManager = (() => {
   const createNewProject = (title, description) => {
-    /* const projectAlreadyExists = projects.find((project) => {
-      return project.title === title;
-    });
-
-    if (typeof projectAlreadyExists === 'object') {
-      return false; // Can't create new project because one with the same title already exists
-    } */ /* This can cause problems when editing the title */
     const newProject = new Project(title, description);
     projects.push(newProject);
 
@@ -152,7 +145,17 @@ const projectManager = (() => {
     mediator.publish('revealed all projects', projectsCopy);
   };
 
-  const subscribe = () => {};
+  const initialise = (storedProjects) => {
+    if (storedProjects.length === 0) {
+      createNewProject('Inbox', '');
+    } else {
+      revealAllProjects();
+    }
+  };
+
+  const subscribe = () => {
+    mediator.subscribe('stored projects', initialise);
+  };
 
   return {
     createNewProject,
@@ -162,6 +165,7 @@ const projectManager = (() => {
     editProjectDescription,
     revealProject,
     revealAllProjects,
+    initialise,
     subscribe,
   };
 })();
@@ -171,6 +175,7 @@ Task Manager
   - Create & delete tasks in a project
   - Edit task title, description, due date, priority & status
   - Create a safe copy of a single task for public use
+  - Subscribe to mediator events
 ******************************************************************** */
 const taskManager = (() => {
   const createNewTask = (
@@ -182,13 +187,6 @@ const taskManager = (() => {
     status,
   ) => {
     const project = projects[Number(projectIndex)];
-    /* const taskAlreadyExists = project.tasks.find((task) => {
-      return task.title === title;
-    });
-
-    if (typeof taskAlreadyExists === 'object') {
-      return false; // Can't create new task because one with the same title already exists
-    } */ /* This can cause problems when editing the title */
     project.tasks.push(new Task(title, description, dueDate, priority, status));
 
     mediator.publish('updated all projects', deepCopyArray(projects));
@@ -274,6 +272,7 @@ Step Manager
   - Create & delete steps in a task
   - Edit step description & status
   - Create a sfe copy of a single step for public use
+  - Subscribe to mediator events
 ******************************************************************** */
 const stepManager = (() => {
   const createNewStep = (projectIndex, taskIndex, description, status) => {

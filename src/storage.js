@@ -6,6 +6,7 @@ const storageManager = (() => {
     if (localStorage.toDoList) {
       toDoList = JSON.parse(localStorage.getItem('toDoList'));
     }
+
     mediator.publish('stored projects', toDoList);
   };
 
