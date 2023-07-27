@@ -1,6 +1,8 @@
 import mediator from './mediator';
 
 const storageManager = (() => {
+  /* Initial function to get anything saved in localStorage - must be called  second in index.js, 
+  immediately after the subscribe functions */
   const getStorage = () => {
     let toDoList = [];
     if (localStorage.toDoList) {

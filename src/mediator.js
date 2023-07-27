@@ -1,5 +1,8 @@
 /* Events:
+	Published by storage.js:
 	- 'stored projects' - publishes all projects saved in storage as an array
+
+	Published by toDoList.js:
 	- 'updated all projects' - publishes all projects (array) when a change occurs
 	- 'revealed all projects' - publishes all current projects (array) when nothing has been altered
 	- 'new project created' - publishes a single project (object) when it is created
@@ -11,6 +14,8 @@
 	- 'new step created' - publishes a single step (object) when it is created
 	- 'updated step' - publishes a single step (object) when a change occurs
 	- 'revealed step' - publishes a single step (object) that hasn't been altered
+
+	Published by ui.js:
 */
 
 const mediator = (() => {

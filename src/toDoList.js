@@ -149,8 +149,11 @@ const projectManager = (() => {
     if (storedProjects.length === 0) {
       createNewProject('Inbox', '');
     } else {
-      revealAllProjects();
+      for (let i = 0; i < storedProjects.length; i++) {
+        projects.push(storedProjects[i]);
+      }
     }
+    revealAllProjects();
   };
 
   const subscribe = () => {
