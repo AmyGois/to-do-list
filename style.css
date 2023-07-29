@@ -1,14 +1,54 @@
 /* Contents:
+    - Colours & typography
     - Main page layout - grid
  */
+
+/* font-family: 'Fira Sans', sans-serif;
+font-family: 'Ysabeau Infant', sans-serif; */
 /* *****************************************************************
+***************************************************************** */
+
+/* *****************************************************************
+- Colours & typography
 ***************************************************************** */
 * {
   box-sizing: border-box;
 }
 
+:root {
+  --highlight-colour-1: #ff6d60;
+  --highlight-colour-2: #f7d060;
+  --highlight-colour-3: #98d8aa;
+  --hero-colour-1: #016f5e;
+  --background-colour-1: #f0f0f0;
+  --background-colour-2: #e8e8d7;
+  --text-colour-1: #1f1f1f;
+  --text-colour-2: #606060;
+}
+
+body {
+  background-color: var(--background-colour-1);
+  color: var(--text-colour-1);
+}
+
+nav,
+aside {
+  background-color: var(--background-colour-2);
+}
+
+header,
+footer {
+  background-color: var(--hero-colour-1);
+  color: var(--background-colour-1);
+}
+
+body,
+button {
+  font-family: 'Fira Sans', sans-serif;
+}
+
 /* *****************************************************************
-Main page layout - grid
+- Main page layout - grid
 ***************************************************************** */
 body {
   margin: 0;
@@ -16,7 +56,7 @@ body {
   display: grid;
   grid-template-rows: 60px 1fr 40px;
   grid-template-columns: 1fr 2fr 1fr;
-  column-gap: 8px;
+  column-gap: 16px;
 }
 
 header,
