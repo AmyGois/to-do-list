@@ -1,15 +1,28 @@
 /* Contents:
-    - Colours & typography
+    - General, colours & typography
     - Main page layout - grid
- */
+    - Header
+    - Navigation bar
+    - Main
+      - Header for main section
+      - Task cards
+    - Aside
+    - Footer
+    - Buttons & hidden content
+      - Buttons to reveal navigation bar & filters bar
+      - Buttons to edit & delete lists
+      - Button to create a new list
+      - Button to create a new task
+      - Buttons to edit, delete & show more of a task
+      - Button to clear all filters
+      - Hidden content
+*/
 
-/* font-family: 'Fira Sans', sans-serif;
-font-family: 'Ysabeau Infant', sans-serif; */
 /* *****************************************************************
 ***************************************************************** */
 
 /* *****************************************************************
-- Colours & typography
+- General, colours & typography
 ***************************************************************** */
 * {
   box-sizing: border-box;
@@ -19,9 +32,11 @@ font-family: 'Ysabeau Infant', sans-serif; */
   --highlight-colour-1: #ff6d60;
   --highlight-colour-2: #f7d060;
   --highlight-colour-3: #98d8aa;
+  --highlight-colour-4: #aaaaaa;
   --hero-colour-1: #016f5e;
   --background-colour-1: #f0f0f0;
-  --background-colour-2: #e8e8d7;
+  --background-colour-2: #d7d7c6;
+  /* --background-colour-2: #e8e8d7; */
   --text-colour-1: #1f1f1f;
   --text-colour-2: #606060;
 }
@@ -43,7 +58,9 @@ footer {
 }
 
 body,
-button {
+button,
+select,
+input {
   font-family: 'Fira Sans', sans-serif;
 }
 
@@ -56,7 +73,7 @@ body {
   display: grid;
   grid-template-rows: 60px 1fr 40px;
   grid-template-columns: 1fr 2fr 1fr;
-  column-gap: 16px;
+  column-gap: 8px;
 }
 
 header,
@@ -91,20 +108,346 @@ aside {
 }
 
 /* *****************************************************************
-Header
+- Header
 ***************************************************************** */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 16px;
+  padding: 8px 28px;
+}
+
+h1 {
+  margin: 0;
+  font-weight: 400;
+  font-size: 1.8rem;
 }
 
 /* *****************************************************************
-Footer
+- Navigation bar
+***************************************************************** */
+nav {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 28px;
+}
+
+.nav-list ul {
+  padding: 0;
+  margin: 0;
+}
+
+.nav-list li {
+  list-style: none;
+  margin: 16px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.nav-list a {
+  text-decoration: none;
+  color: var(--text-colour-2);
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.nav-list a:hover {
+  font-weight: 500;
+}
+
+.nav-list-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-linebreak {
+  border-top: 1px solid var(--highlight-colour-4);
+}
+
+/* *****************************************************************
+- Main
+***************************************************************** */
+main {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* - Header for main section */
+.main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+h2 {
+  margin: 0;
+  font-weight: 500;
+}
+
+.main-header p {
+  margin: 8px 0 0 0;
+  font-weight: 300;
+  font-size: 1.2rem;
+}
+
+/* - Task cards */
+.main-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.finished-tasks {
+  border-top: 1px solid var(--highlight-colour-4);
+}
+
+.task-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.task-item {
+  border-left: 1rem solid;
+  background-color: var(--background-colour-2);
+  padding: 8px;
+  width: clamp(200px, 80%, 700px);
+  border-radius: 6px;
+}
+
+.task-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 8px 8px 8px;
+  font-weight: 300;
+}
+
+.task-description,
+.task-steps {
+  margin: 0;
+}
+
+.task-steps {
+  padding: 0 0 0 16px;
+}
+
+.task-steps li {
+  list-style: none;
+}
+
+.task-info,
+.task-date-info {
+  font-weight: 400;
+}
+
+.task-date-info {
+  margin-left: 8px;
+}
+
+.priority-high {
+  border-left-color: var(--highlight-colour-1);
+}
+
+.priority-high .task-priority-level {
+  background-color: var(--highlight-colour-1);
+}
+
+.priority-medium {
+  border-left-color: var(--highlight-colour-2);
+}
+
+.priority-medium .task-priority-level {
+  background-color: var(--highlight-colour-2);
+}
+
+.priority-low {
+  border-left-color: var(--highlight-colour-3);
+}
+
+.priority-low .task-priority-level {
+  background-color: var(--highlight-colour-3);
+}
+
+.priority-none {
+  border-left-color: var(--highlight-colour-4);
+}
+
+.priority-none .task-priority-level {
+  background-color: var(--highlight-colour-4);
+}
+
+.task-row-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+/* *****************************************************************
+- Aside
+***************************************************************** */
+aside {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text-colour-2);
+}
+
+.aside-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.aside-inputs input,
+.aside-inputs select {
+  flex-grow: 1;
+}
+
+.aside-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+aside input,
+aside select {
+  padding: 4px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: var(--text-colour-1);
+  background-color: var(--background-colour-1);
+}
+
+.aside-filters p {
+  margin-bottom: 0;
+  font-size: 1.2rem;
+}
+
+.aside-button {
+  padding: 16px 0;
+  border-top: 1px solid var(--highlight-colour-4);
+}
+
+/* *****************************************************************
+- Footer
 ***************************************************************** */
 footer {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+footer p {
+  margin: 0;
+  font-weight: 300;
+  font-size: 1.1rem;
+}
+
+/* *****************************************************************
+- Buttons & hidden content
+***************************************************************** */
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.nav-new-list-button:active,
+.main-new-task-button:active,
+.aside-button button:active {
+  padding: 0.45rem 0.95rem;
+}
+
+/* - Buttons to reveal navigation bar & filters bar */
+.header-nav-button,
+.header-filter-button {
+  background: none;
+  padding: 0;
+}
+
+.header-nav-button:hover,
+.header-filter-button:hover {
+  cursor: pointer;
+}
+
+.header-nav-button img,
+.header-filter-button img {
+  width: 26px;
+  filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(125deg)
+    brightness(101%) contrast(101%);
+}
+
+/* - Buttons to edit & delete lists */
+.nav-list-buttons button {
+  padding: 0;
+  height: 20px;
+  background: none;
+  cursor: pointer;
+}
+
+.nav-list-buttons img {
+  width: 20px;
+  filter: invert(40%) sepia(0%) saturate(1281%) hue-rotate(149deg)
+    brightness(88%) contrast(87%);
+}
+
+/* - Button to create a new list */
+.nav-new-list-button {
+  align-self: flex-start;
+  margin: 16px 0;
+}
+
+.nav-new-list-button:hover {
+  background-color: var(--highlight-colour-3);
+}
+
+/* - Button to create a new task */
+.main-new-task-button {
+  background-color: var(--highlight-colour-3);
+}
+
+.main-new-task-button:hover {
+  background-color: var(--hero-colour-1);
+  color: var(--background-colour-1);
+}
+
+/* - Buttons to edit, delete & show more of a task */
+.task-reveal-button,
+.task-row-buttons button {
+  padding: 0;
+  height: 28px;
+  background: none;
+  cursor: pointer;
+}
+
+.task-reveal-button img,
+.task-row-buttons img {
+  width: 28px;
+}
+
+/* - Button to clear all filters */
+.aside-button button {
+  background-color: var(--background-colour-1);
+}
+
+.aside-button button:hover {
+  background-color: var(--highlight-colour-2);
+}
+
+/* - Hidden content */
+.hidden {
+  display: none;
 }

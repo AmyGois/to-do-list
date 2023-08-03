@@ -10,54 +10,270 @@
       href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,100;0,300;0,400;0,500;0,700;1,100;1,300;1,400;1,500;1,700&display=swap"
       rel="stylesheet"
     />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Ysabeau+Infant:ital,wght@0,100;0,300;0,400;0,600;0,700;1,100;1,300;1,400;1,600;1,700&display=swap"
-      rel="stylesheet"
-    />
     <link rel="stylesheet" href="./style.css" />
     <script src="./main.js" defer></script>
   </head>
 
   <body>
     <header>
-      <button>=</button>
+      <button class="header-nav-button">
+        <img src="./icons/main-menu.svg" alt="main menu button" />
+      </button>
       <h1>To Do List</h1>
-      <button>:</button>
+      <button class="header-filter-button">
+        <img src="./icons/secondary-menu.svg" alt="filters menu button" />
+      </button>
     </header>
 
     <nav>
-      <div>
+      <div class="nav-list">
         <ul>
           <li><a href="#">Inbox</a></li>
           <li><a href="#">Today</a></li>
         </ul>
       </div>
-      <div>
+      <div class="nav-list nav-linebreak">
         <ul>
-          <li>Shopping</li>
-          <li>Housework</li>
+          <li>
+            <a href="#">Shopping</a>
+            <div class="nav-list-buttons">
+              <button>
+                <img src="./icons/edit.svg" alt="edit list button" />
+              </button>
+              <button>
+                <img src="./icons/delete.svg" alt="delete list button" />
+              </button>
+            </div>
+          </li>
+          <li>
+            <a href="#">Housework</a>
+            <div class="nav-list-buttons">
+              <button>
+                <img src="./icons/edit.svg" alt="edit list button" />
+              </button>
+              <button>
+                <img src="./icons/delete.svg" alt="delete list button" />
+              </button>
+            </div>
+          </li>
         </ul>
-        <button>+ New List</button>
+      </div>
+      <button class="nav-new-list-button">+ New List</button>
+      <div class="nav-list nav-linebreak">
+        <ul>
+          <li><a href="#">All Tasks</a></li>
+        </ul>
       </div>
     </nav>
 
     <main>
-      <div>
+      <div class="main-header">
         <div>
           <h2>Inbox</h2>
           <p>Random tasks to do</p>
         </div>
-        <div>
-          <button>+ New Task</button>
+        <button class="main-new-task-button">+ New Task</button>
+      </div>
+
+      <div class="main-tasks unfinished-tasks">
+        <div class="task-row">
+          <div class="task-item priority-medium">
+            <div class="task-item-header">
+              <div class="task-title">
+                <input
+                  type="checkbox"
+                  name="project-task-1"
+                  id="project-task-1"
+                />
+                <label for="project-task-1">Make a to do list</label>
+              </div>
+              <div class="task-item-reveal">
+                <button class="task-reveal-button">
+                  <img
+                    src="./icons/drop_down.svg"
+                    alt="show task details dropdown"
+                  />
+                </button>
+              </div>
+            </div>
+
+            <div class="task-item-body">
+              <p class="task-description">
+                Create a web page that allows the user to create multiple to do
+                lists and add tasks to each one.
+              </p>
+              <ul class="task-steps">
+                <li>
+                  <input
+                    type="checkbox"
+                    name="project-task-step-1"
+                    id="project-task-step-1"
+                  />
+                  <label for="project-task-step-1">Create the code logic</label>
+                </li>
+                <li>
+                  <input
+                    type="checkbox"
+                    name="project-task-step-1"
+                    id="project-task-step-1"
+                  />
+                  <label for="project-task-step-1">Define page styles</label>
+                </li>
+                <li>
+                  <input
+                    type="checkbox"
+                    name="project-task-step-1"
+                    id="project-task-step-1"
+                  />
+                  <label for="project-task-step-1">Connect logic to UI</label>
+                </li>
+              </ul>
+              <div>
+                <span class="task-info">Due by:</span>
+                <span class="task-due-date">23-09-2023</span>
+                <span class="task-date-info">Late!</span>
+              </div>
+              <div>
+                <span class="task-info">Priority:</span>
+                <span class="task-priority-level">Medium</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="task-row-buttons">
+            <button>
+              <img src="./icons/edit.svg" alt="edit task button" />
+            </button>
+            <button>
+              <img src="./icons/delete.svg" alt="delete task button" />
+            </button>
+          </div>
+        </div>
+
+        <div class="task-row">
+          <div class="task-item priority-low">
+            <div class="task-item-header">
+              <div class="task-title">
+                <input
+                  type="checkbox"
+                  name="project-task-2"
+                  id="project-task-2"
+                />
+                <label for="project-task-2">Make a to do list</label>
+              </div>
+              <div class="task-item-reveal">
+                <button class="task-reveal-button">
+                  <img
+                    src="./icons/drop_down.svg"
+                    alt="show task details dropdown"
+                  />
+                </button>
+              </div>
+            </div>
+
+            <div class="task-item-body hidden">
+              <p class="task-description">
+                Create a web page that allows the user to create multiple to do
+                lists and add tasks to each one.
+              </p>
+              <ul class="task-steps">
+                <li>
+                  <input
+                    type="checkbox"
+                    name="project-task-step-2"
+                    id="project-task-step-2"
+                  />
+                  <label for="project-task-step-2">Create the code logic</label>
+                </li>
+                <li>
+                  <input
+                    type="checkbox"
+                    name="project-task-step-1"
+                    id="project-task-step-1"
+                  />
+                  <label for="project-task-step-1">Define page styles</label>
+                </li>
+                <li>
+                  <input
+                    type="checkbox"
+                    name="project-task-step-1"
+                    id="project-task-step-1"
+                  />
+                  <label for="project-task-step-1">Connect logic to UI</label>
+                </li>
+              </ul>
+              <div>
+                <span class="task-info">Due by:</span>
+                <span class="task-due-date">23-09-2023</span>
+                <span class="task-date-info">Late!</span>
+              </div>
+              <div>
+                <span class="task-info">Priority:</span>
+                <span class="task-priority-level">Low</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="task-row-buttons">
+            <button>
+              <img src="./icons/edit.svg" alt="edit task button" />
+            </button>
+            <button>
+              <img src="./icons/delete.svg" alt="delete task button" />
+            </button>
+          </div>
         </div>
       </div>
 
-      <div></div>
-      <div></div>
+      <div class="main-tasks finished-tasks">
+        <!-- <p>Finished</p> -->
+      </div>
     </main>
 
     <aside>
-      <p>Aside</p>
+      <div class="aside-inputs">
+        <label for="search-tasks">Search:</label>
+        <input type="search" name="search-tasks" id="search-tasks" />
+      </div>
+      <div class="aside-inputs">
+        <label for="order-options">Order by:</label>
+        <select name="order-options" id="order-options">
+          <option value="order-none" selected>None</option>
+          <option value="order-priority-highest">
+            Priority - highest first
+          </option>
+          <option value="order-priority-lowest">Priority- lowest first</option>
+          <option value="order-AZ">Alphabetically - A-Z</option>
+          <option value="order-ZA">Alphabetically - Z-A</option>
+          <option value="order-date-soonest">Date - soonest first</option>
+          <option value="order-date-latest">Date - latest first</option>
+        </select>
+      </div>
+      <div class="aside-filters">
+        <p>Filters</p>
+        <div class="aside-inputs">
+          <label for="filter-priority-options">Priority:</label>
+          <select name="filter-priority-options" id="filter-priority-options">
+            <option value="filter-priority-all" selected>All</option>
+            <option value="filter-priority-high">High</option>
+            <option value="filter-priority-medium">Medium</option>
+            <option value="filter-priority-low">Low</option>
+            <option value="filter-priority-none">None</option>
+          </select>
+        </div>
+        <div class="aside-inputs">
+          <label for="filter-status-options">Status:</label>
+          <select name="filter-status-options" id="filter-status-options">
+            <option value="filter-status-all" selected>All</option>
+            <option value="filter-status-todo">To do</option>
+            <option value="filter-status-doing">Doing</option>
+            <option value="filter-status-done">Done</option>
+          </select>
+        </div>
+      </div>
+      <div class="aside-button">
+        <button>Clear all</button>
+      </div>
     </aside>
 
     <footer>
