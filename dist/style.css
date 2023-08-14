@@ -8,13 +8,16 @@
       - Task cards
     - Aside
     - Footer
+    - Modals
     - Buttons & hidden content
       - Buttons to reveal navigation bar & filters bar
-      - Buttons to edit & delete lists
-      - Button to create a new list
-      - Button to create a new task
+      - - Buttons to edit & delete lists (aside) & add & edit steps (modal)
+      - Buttons to create a new list (aside) & add steps (modal)
+      - Buttons to create a new task (main) & create lists (modal)
       - Buttons to edit, delete & show more of a task
       - Button to clear all filters
+      - Button to close modals
+      - Buttons to delete or cancel deleting tasks & lists
       - Hidden content
 */
 
@@ -60,7 +63,8 @@ footer {
 body,
 button,
 select,
-input {
+input,
+textarea {
   font-family: 'Fira Sans', sans-serif;
 }
 
@@ -181,7 +185,7 @@ main {
   justify-content: space-between;
 }
 
-h2 {
+.main-header h2 {
   margin: 0;
   font-weight: 500;
 }
@@ -355,6 +359,115 @@ footer p {
 }
 
 /* *****************************************************************
+- Modals
+***************************************************************** */
+.modal-background {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background-color: #00000087;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.new-list-modal,
+.edit-list-modal,
+.new-task-modal,
+.edit-task-modal,
+.delete-task-modal,
+.delete-list-modal {
+  background-color: var(--background-colour-2);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.new-list-modal,
+.edit-list-modal,
+.new-task-modal,
+.edit-task-modal {
+  width: 450px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.modal-header h2 {
+  margin-top: 0;
+  font-weight: 500;
+}
+
+.modal-form,
+.modal-form div {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-form {
+  gap: 16px;
+}
+
+.modal-form div {
+  gap: 8px;
+}
+
+.modal-form input,
+.modal-form textarea,
+.modal-form select {
+  padding: 4px;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  background-color: var(--background-colour-1);
+}
+
+.modal-form textarea {
+  resize: vertical;
+}
+
+.modal-form p {
+  margin: 0;
+}
+
+.modal-form .modal-form-date,
+.modal-form .modal-form-priority {
+  flex-direction: row;
+  align-items: center;
+}
+
+.modal-steps-list {
+  margin: 0;
+}
+
+.modal-steps-list img {
+  width: 20px;
+}
+
+.modal-form .add-step-button {
+  align-self: center;
+}
+
+.steps-list-item-button {
+  margin-left: 6px;
+}
+
+.modal-form button {
+  align-self: flex-end;
+}
+
+.delete-task-modal {
+  text-align: center;
+}
+
+.delete-buttons {
+  display: flex;
+  justify-content: space-around;
+}
+
+/* *****************************************************************
 - Buttons & hidden content
 ***************************************************************** */
 button {
@@ -367,7 +480,11 @@ button {
 
 .nav-new-list-button:active,
 .main-new-task-button:active,
-.aside-button button:active {
+.aside-button button:active,
+.add-step-button:active,
+.modal-form-submit:active,
+.cancel-button:active,
+.delete-button:active {
   padding: 0.45rem 0.95rem;
 }
 
@@ -390,8 +507,9 @@ button {
     brightness(101%) contrast(101%);
 }
 
-/* - Buttons to edit & delete lists */
-.nav-list-buttons button {
+/* - Buttons to edit & delete lists (aside) & add & edit steps (modal) */
+.nav-list-buttons button,
+.modal-steps-list button {
   padding: 0;
   height: 20px;
   background: none;
@@ -404,22 +522,25 @@ button {
     brightness(88%) contrast(87%);
 }
 
-/* - Button to create a new list */
+/* - Buttons to create a new list (aside) & add steps (modal) */
 .nav-new-list-button {
   align-self: flex-start;
   margin: 16px 0;
 }
 
-.nav-new-list-button:hover {
+.nav-new-list-button:hover,
+.add-step-button:hover {
   background-color: var(--highlight-colour-3);
 }
 
-/* - Button to create a new task */
-.main-new-task-button {
+/* - Buttons to create a new task (main) & create lists (modal) */
+.main-new-task-button,
+.modal-form-submit {
   background-color: var(--highlight-colour-3);
 }
 
-.main-new-task-button:hover {
+.main-new-task-button:hover,
+.modal-form-submit:hover {
   background-color: var(--hero-colour-1);
   color: var(--background-colour-1);
 }
@@ -445,6 +566,28 @@ button {
 
 .aside-button button:hover {
   background-color: var(--highlight-colour-2);
+}
+
+/* - Button to close modals */
+.modal-close-button {
+  background: none;
+  padding: 0;
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+/* - Buttons to delete or cancel deleting tasks & lists */
+.cancel-button:hover {
+  background-color: var(--highlight-colour-2);
+}
+
+.delete-button {
+  background-color: var(--highlight-colour-1);
+}
+
+.delete-button:hover {
+  background-color: var(--hero-colour-1);
+  color: var(--background-colour-1);
 }
 
 /* - Hidden content */
