@@ -16,6 +16,7 @@
 	- 'revealed step' - publishes a single step (object) that hasn't been altered
 
 	Published by ui.js:
+  - 'create new project'
 */
 
 const mediator = (() => {

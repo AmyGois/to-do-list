@@ -93,6 +93,7 @@ const projectManager = (() => {
       'new project created',
       deepCopyObject(projects[projects.length - 1]),
     );
+    console.log(newProject);
   };
 
   const deleteProject = (projectIndex) => {
@@ -158,6 +159,7 @@ const projectManager = (() => {
 
   const subscribe = () => {
     mediator.subscribe('stored projects', initialise);
+    mediator.subscribe('create new project', createNewProject);
   };
 
   return {

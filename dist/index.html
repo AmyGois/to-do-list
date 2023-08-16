@@ -16,11 +16,11 @@
 
   <body>
     <header>
-      <button class="header-nav-button">
+      <button class="header-button" id="toggle-nav-button">
         <img src="./icons/main-menu.svg" alt="main menu button" />
       </button>
       <h1>To Do List</h1>
-      <button class="header-filter-button">
+      <button class="header-button" id="toggle-aside-button">
         <img src="./icons/secondary-menu.svg" alt="filters menu button" />
       </button>
     </header>
@@ -33,7 +33,7 @@
         </ul>
       </div>
       <div class="nav-list nav-linebreak">
-        <ul>
+        <ul id="nav-todo-lists">
           <li>
             <a href="#">Shopping</a>
             <div class="nav-list-buttons">
@@ -70,7 +70,7 @@
       <div class="main-header">
         <div>
           <h2>Inbox</h2>
-          <p>General tasks to do</p>
+          <p></p>
         </div>
         <button class="main-new-task-button">+ New Task</button>
       </div>
@@ -225,9 +225,7 @@
         </div>
       </div>
 
-      <div class="main-tasks finished-tasks">
-        <!-- <p>Finished</p> -->
-      </div>
+      <div class="main-tasks finished-tasks"></div>
     </main>
 
     <aside>
@@ -281,7 +279,7 @@
     </footer>
 
     <div class="modal-background hidden">
-      <div class="new-list-modal">
+      <div class="new-list-modal modal">
         <div class="modal-header">
           <h2>New List</h2>
           <button class="modal-close-button">X</button>
@@ -289,7 +287,12 @@
         <form action="#" method="post" class="modal-form">
           <div>
             <label for="new-list-name">List name:</label>
-            <input type="text" name="new-list-name" id="new-list-name" />
+            <input
+              type="text"
+              name="new-list-name"
+              id="new-list-name"
+              required
+            />
           </div>
           <div>
             <label for="new-list-description">Description (optional):</label>
@@ -308,7 +311,7 @@
     </div>
 
     <div class="modal-background hidden">
-      <div class="edit-list-modal">
+      <div class="edit-list-modal modal">
         <div class="modal-header">
           <h2>Edit List</h2>
           <button class="modal-close-button">X</button>
@@ -335,7 +338,7 @@
     </div>
 
     <div class="modal-background hidden">
-      <div class="new-task-modal">
+      <div class="new-task-modal modal">
         <div class="modal-header">
           <h2>Edit Task</h2>
           <button class="modal-close-button">X</button>
@@ -404,7 +407,7 @@
     </div>
 
     <div class="modal-background hidden">
-      <div class="edit-task-modal">
+      <div class="edit-task-modal modal">
         <div class="modal-header">
           <h2>Edit Task</h2>
           <button class="modal-close-button">X</button>
@@ -473,7 +476,7 @@
     </div>
 
     <div class="modal-background hidden">
-      <div class="delete-task-modal">
+      <div class="delete-task-modal modal">
         <p>Are you sure you want to delete this task?</p>
         <p>This action is irreversible</p>
         <div class="delete-buttons">
@@ -484,7 +487,7 @@
     </div>
 
     <div class="modal-background hidden">
-      <div class="delete-list-modal">
+      <div class="delete-list-modal modal">
         <p>Are you sure you want to delete this list?</p>
         <p>All tasks in this list will be deleted, too</p>
         <div class="delete-buttons">
