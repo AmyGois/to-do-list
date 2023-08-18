@@ -16,6 +16,7 @@ import storageManager from './storage';
 - Constructors - Task, Step & Project
   - Step goes inside Task.steps[]
   - Task goes inside Project.tasks[]
+  - Project goes inside projects[]
 ******************************************************************** */
 class Task {
   constructor(title, description, dueDate, priority, status) {

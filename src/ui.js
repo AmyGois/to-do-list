@@ -46,7 +46,30 @@ const header = (() => {
 - Navbar module
 ************************************************************** */
 const navbar = (() => {
-  const renderNewList = (list) => {
+  const setProjectDataIndex = (element, index) => {
+    element.dataset.projectIndex = index;
+  };
+
+  const calculateNewProjectIndex = () => {
+    const lists = document.getElementById('nav-todo-lists').children;
+    const newIndex = lists.length + 1;
+    return newIndex;
+  };
+
+  const updateAllProjectIndices = () => {
+    const currentLists = document.getElementById('nav-todo-lists').children;
+    let updatedIndex = 1;
+    for (const list of currentLists) {
+      const buttons = list.querySelectorAll('button');
+      list.dataset.projectIndex = updatedIndex;
+      buttons.forEach((button) => {
+        button.dataset.projectIndex = updatedIndex;
+      });
+      updatedIndex += 1;
+    }
+  };
+
+  const renderNewList = (list, listIndex) => {
     const navList = document.getElementById('nav-todo-lists');
     const listItem = document.createElement('li');
     const link = document.createElement('a');
@@ -64,6 +87,10 @@ const navbar = (() => {
     deleteImg.setAttribute('src', './icons/delete.svg');
     deleteImg.setAttribute('alt', 'button to delete list');
 
+    setProjectDataIndex(link, listIndex);
+    setProjectDataIndex(editBtn, listIndex);
+    setProjectDataIndex(deleteBtn, listIndex);
+
     editBtn.appendChild(editImg);
     deleteBtn.appendChild(deleteImg);
     div.appendChild(editBtn);
@@ -71,6 +98,21 @@ const navbar = (() => {
     listItem.appendChild(link);
     listItem.appendChild(div);
     navList.appendChild(listItem);
+
+    deleteBtn.addEventListener('click', () =>
+      deleteListModal.openDeleteModal(deleteBtn.dataset.projectIndex),
+    );
+  };
+
+  const renderDeletedList = (listIndex) => {
+    const lists = document.getElementById('nav-todo-lists').children;
+    for (const list of lists) {
+      const link = list.querySelector('a');
+      if (link.dataset.projectIndex === String(listIndex)) {
+        list.remove();
+        break;
+      }
+    }
   };
 
   /* Functions to invoke in initiliser function, for the component to work properly */
@@ -78,7 +120,7 @@ const navbar = (() => {
     const lists = projectManager.revealAllProjects();
     lists.forEach((list) => {
       if (lists.indexOf(list) > 0) {
-        renderNewList(list);
+        renderNewList(list, lists.indexOf(list));
       }
     });
   };
@@ -90,7 +132,13 @@ const navbar = (() => {
     newListBtn.addEventListener('click', () => toggleHidden(modalNewList));
   };
 
-  return { renderNewList, renderCurrentLists, addNewListBtnListener };
+  return {
+    calculateNewProjectIndex,
+    renderNewList,
+    renderDeletedList,
+    renderCurrentLists,
+    addNewListBtnListener,
+  };
 })();
 
 /* **************************************************************
@@ -144,6 +192,7 @@ const allModals = (() => {
 - 'New List' modal module
 ************************************************************** */
 const newListModal = (() => {
+  const modal = document.querySelector('.new-list-modal').parentElement;
   const submitBtn = document.getElementById('new-list-submit-button');
 
   const creatNewList = (e) => {
@@ -151,15 +200,15 @@ const newListModal = (() => {
     const descriptionInput = document.getElementById(
       'new-list-description',
     ).value;
-    const modal = document.querySelector('.new-list-modal').parentElement;
-    if (titleInput.value !== '') {
+
+    if (titleInput !== '') {
       e.preventDefault();
 
       const newList = projectManager.createNewProject(
         titleInput,
         descriptionInput,
       );
-      navbar.renderNewList(newList);
+      navbar.renderNewList(newList, navbar.calculateNewProjectIndex());
 
       allModals.closeModal(modal);
     }
@@ -171,6 +220,42 @@ const newListModal = (() => {
   };
 
   return { addSubmitBtnListener };
+})();
+
+/* **************************************************************
+'Delete list' modal module
+************************************************************** */
+const deleteListModal = (() => {
+  const modal = document.querySelector('.delete-list-modal').parentElement;
+  const cancelBtn = modal.querySelector('.cancel-button');
+  const deleteBtn = modal.querySelector('.delete-button');
+
+  const setProjectDataIndex = (projectIndex) => {
+    deleteBtn.dataset.projectIndex = projectIndex;
+  };
+
+  const openDeleteModal = (projectIndex) => {
+    setProjectDataIndex(projectIndex);
+    toggleHidden(modal);
+  };
+
+  const deleteList = () => {
+    const index = Number(deleteBtn.dataset.projectIndex);
+    projectManager.deleteProject(index);
+    navbar.renderDeletedList(index);
+    toggleHidden(modal);
+  };
+
+  /* Function to invoke in initiliser function, for the component to work properly */
+  const addCancelBtnListener = () => {
+    cancelBtn.addEventListener('click', () => toggleHidden(modal));
+  };
+
+  const addDeleteBtnListener = () => {
+    deleteBtn.addEventListener('click', deleteList);
+  };
+
+  return { openDeleteModal, addCancelBtnListener, addDeleteBtnListener };
 })();
 
 /* **************************************************************
@@ -186,6 +271,8 @@ const initialiseUI = () => {
   allModals.addCloseBackgroundListeners();
 
   newListModal.addSubmitBtnListener();
+  deleteListModal.addCancelBtnListener();
+  deleteListModal.addDeleteBtnListener();
 };
 
 export default initialiseUI;
