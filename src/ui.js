@@ -5,6 +5,8 @@
 	- Header module
 
 	- Navbar module
+
+  - Main module
 	
 	- Module to control things common most modals
 
@@ -163,6 +165,53 @@ const navbar = (() => {
     renderCurrentLists,
     setInboxProjectIndex,
     addNewListBtnListener,
+  };
+})();
+
+/* **************************************************************
+- Main module
+************************************************************** */
+const main = (() => {
+  const newTaskBtn = document.getElementById('main-new-task-button');
+
+  const renderHeader = (project) => {
+    const listTitle = document.getElementById('main-list-title');
+    const listDescription = document.getElementById('main-list-description');
+    listTitle.textContent = project.title;
+    listDescription.textContent = project.description;
+  };
+
+  const setNewTaskBtnIndex = (index) => {
+    newTaskBtn.dataset.projectIndex = index;
+  };
+
+  const addNewTaskBtnListener = () => {
+    newTaskBtn.addEventListener('click', () =>
+      newTaskModal.openNewTaskModal(newTaskBtn.dataset.projectIndex),
+    );
+  };
+
+  const clearTasks = () => {
+    const taskGroups = document.querySelectorAll('.main-tasks');
+    taskGroups.forEach((taskGroup) => {
+      taskGroup.innerHTML = '';
+    });
+  };
+
+  /* Function to invoke on initilise, for the component to work properly */
+  const init = () => {
+    const firstProject = projectManager.revealProject(0);
+    renderHeader(firstProject);
+    setNewTaskBtnIndex(0);
+    addNewTaskBtnListener();
+  };
+
+  return {
+    renderHeader,
+    setNewTaskBtnIndex,
+    clearTasks,
+    addNewTaskBtnListener,
+    init,
   };
 })();
 
@@ -331,6 +380,25 @@ const deleteListModal = (() => {
 })();
 
 /* **************************************************************
+- 'New task' modal module
+************************************************************** */
+const newTaskModal = (() => {
+  const modal = document.querySelector('.new-task-modal').parentElement;
+  const newTaskBtn = document.getElementById('new-task-submit-button');
+
+  const setProjectDataIndex = (projectIndex) => {
+    newTaskBtn.dataset.projectIndex = projectIndex;
+  };
+
+  const openNewTaskModal = (projectIndex) => {
+    setProjectDataIndex(projectIndex);
+    toggleHidden(modal);
+  };
+
+  return { openNewTaskModal };
+})();
+
+/* **************************************************************
 - Initialiser function
 ************************************************************** */
 const initialiseUI = () => {
@@ -339,6 +407,8 @@ const initialiseUI = () => {
   navbar.renderCurrentLists();
   navbar.setInboxProjectIndex();
   navbar.addNewListBtnListener();
+
+  main.init();
 
   allModals.addCloseBtnListeners();
   allModals.addCloseBackgroundListeners();
