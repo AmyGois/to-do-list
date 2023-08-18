@@ -10,6 +10,8 @@
 
 	- 'New List' modal module
 
+  - 'Delete list' modal module
+
 	- Initialiser function
 */
 /* **************************************************************
@@ -100,6 +102,9 @@ const navbar = (() => {
     listItem.appendChild(div);
     navList.appendChild(listItem);
 
+    editBtn.addEventListener('click', () =>
+      editListModal.openEditModal(editBtn.dataset.projectIndex),
+    );
     deleteBtn.addEventListener('click', () =>
       deleteListModal.openDeleteModal(deleteBtn.dataset.projectIndex),
     );
@@ -112,6 +117,17 @@ const navbar = (() => {
       if (link.dataset.projectIndex === String(listIndex)) {
         list.remove();
         updateAllProjectIndices();
+        break;
+      }
+    }
+  };
+
+  const renderEditedList = (listIndex, project) => {
+    const lists = document.getElementById('nav-todo-lists').children;
+    for (const list of lists) {
+      const link = list.querySelector('a');
+      if (link.dataset.projectIndex === String(listIndex)) {
+        link.textContent = project.title;
         break;
       }
     }
@@ -143,6 +159,7 @@ const navbar = (() => {
     calculateNewProjectIndex,
     renderNewList,
     renderDeletedList,
+    renderEditedList,
     renderCurrentLists,
     setInboxProjectIndex,
     addNewListBtnListener,
@@ -231,7 +248,54 @@ const newListModal = (() => {
 })();
 
 /* **************************************************************
-'Delete list' modal module
+- 'Edit list' modal module
+************************************************************** */
+const editListModal = (() => {
+  const modal = document.querySelector('.edit-list-modal').parentElement;
+  const editBtn = document.getElementById('edit-list-submit-button');
+
+  const setProjectDataIndex = (projectIndex) => {
+    editBtn.dataset.projectIndex = projectIndex;
+  };
+
+  const openEditModal = (projectIndex) => {
+    const titleInput = document.getElementById('edit-list-name');
+    const descriptionInput = document.getElementById('edit-list-description');
+    const projectToEdit = projectManager.revealProject(Number(projectIndex));
+
+    titleInput.value = projectToEdit.title;
+    descriptionInput.value = projectToEdit.description;
+
+    setProjectDataIndex(projectIndex);
+    toggleHidden(modal);
+  };
+
+  const editList = (e) => {
+    const titleInput = document.getElementById('edit-list-name').value;
+    const descriptionInput = document.getElementById(
+      'edit-list-description',
+    ).value;
+    const index = Number(editBtn.dataset.projectIndex);
+
+    if (titleInput !== '') {
+      e.preventDefault();
+      projectManager.editProjectTitle(index, titleInput);
+      projectManager.editProjectDescription(index, descriptionInput);
+      navbar.renderEditedList(index, projectManager.revealProject(index));
+      allModals.closeModal(modal);
+    }
+  };
+
+  /* Function to invoke on initilise, for the component to work properly */
+  const addEditBtnListener = () => {
+    editBtn.addEventListener('click', (e) => editList(e));
+  };
+
+  return { openEditModal, addEditBtnListener };
+})();
+
+/* **************************************************************
+- 'Delete list' modal module
 ************************************************************** */
 const deleteListModal = (() => {
   const modal = document.querySelector('.delete-list-modal').parentElement;
@@ -280,6 +344,7 @@ const initialiseUI = () => {
   allModals.addCloseBackgroundListeners();
 
   newListModal.addSubmitBtnListener();
+  editListModal.addEditBtnListener();
   deleteListModal.addCancelBtnListener();
   deleteListModal.addDeleteBtnListener();
 };
