@@ -46,10 +46,12 @@
     <main>
       <div class="main-header">
         <div>
-          <h2>Inbox</h2>
-          <p></p>
+          <h2 id="main-list-title">Inbox</h2>
+          <p id="main-list-description"></p>
         </div>
-        <button class="main-new-task-button">+ New Task</button>
+        <button class="main-new-task-button" id="main-new-task-button">
+          + New Task
+        </button>
       </div>
 
       <div class="main-tasks unfinished-tasks">
@@ -317,7 +319,7 @@
     <div class="modal-background hidden">
       <div class="new-task-modal modal">
         <div class="modal-header">
-          <h2>Edit Task</h2>
+          <h2>New Task</h2>
           <button class="modal-close-button">X</button>
         </div>
         <form action="#" method="post" class="modal-form">
