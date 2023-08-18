@@ -28,7 +28,7 @@ const toggleHidden = (element) => {
 - Header module
 ************************************************************** */
 const header = (() => {
-  /* Function to invoke in initiliser function, for the component to work properly */
+  /* Function to invoke on initilise, for the component to work properly */
   const addHeaderListeners = () => {
     const toggleNavBtn = document.getElementById('toggle-nav-button');
     const toggleAsideBtn = document.getElementById('toggle-aside-button');
@@ -60,8 +60,9 @@ const navbar = (() => {
     const currentLists = document.getElementById('nav-todo-lists').children;
     let updatedIndex = 1;
     for (const list of currentLists) {
+      const link = list.querySelector('a');
       const buttons = list.querySelectorAll('button');
-      list.dataset.projectIndex = updatedIndex;
+      link.dataset.projectIndex = updatedIndex;
       buttons.forEach((button) => {
         button.dataset.projectIndex = updatedIndex;
       });
@@ -110,12 +111,13 @@ const navbar = (() => {
       const link = list.querySelector('a');
       if (link.dataset.projectIndex === String(listIndex)) {
         list.remove();
+        updateAllProjectIndices();
         break;
       }
     }
   };
 
-  /* Functions to invoke in initiliser function, for the component to work properly */
+  /* Functions to invoke on initilise, for the component to work properly */
   const renderCurrentLists = () => {
     const lists = projectManager.revealAllProjects();
     lists.forEach((list) => {
@@ -123,6 +125,11 @@ const navbar = (() => {
         renderNewList(list, lists.indexOf(list));
       }
     });
+  };
+
+  const setInboxProjectIndex = () => {
+    const inbox = document.getElementById('nav-list-inbox');
+    setProjectDataIndex(inbox, 0);
   };
 
   const addNewListBtnListener = () => {
@@ -137,6 +144,7 @@ const navbar = (() => {
     renderNewList,
     renderDeletedList,
     renderCurrentLists,
+    setInboxProjectIndex,
     addNewListBtnListener,
   };
 })();
@@ -162,7 +170,7 @@ const allModals = (() => {
     toggleHidden(modal);
   };
 
-  /* Functions to invoke in initiliser function, for the component to work properly */
+  /* Functions to invoke on initilise, for the component to work properly */
   const addCloseBtnListeners = () => {
     const closeModalBtns = document.querySelectorAll('.modal-close-button');
 
@@ -214,7 +222,7 @@ const newListModal = (() => {
     }
   };
 
-  /* Function to invoke in initiliser function, for the component to work properly */
+  /* Function to invoke on initilise, for the component to work properly */
   const addSubmitBtnListener = () => {
     submitBtn.addEventListener('click', (e) => creatNewList(e));
   };
@@ -246,7 +254,7 @@ const deleteListModal = (() => {
     toggleHidden(modal);
   };
 
-  /* Function to invoke in initiliser function, for the component to work properly */
+  /* Function to invoke on initilise, for the component to work properly */
   const addCancelBtnListener = () => {
     cancelBtn.addEventListener('click', () => toggleHidden(modal));
   };
@@ -265,6 +273,7 @@ const initialiseUI = () => {
   header.addHeaderListeners();
 
   navbar.renderCurrentLists();
+  navbar.setInboxProjectIndex();
   navbar.addNewListBtnListener();
 
   allModals.addCloseBtnListeners();
