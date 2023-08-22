@@ -442,6 +442,10 @@ footer p {
   margin: 0;
 }
 
+.modal-steps-list li {
+  list-style: none;
+}
+
 .modal-steps-list img {
   width: 20px;
 }
