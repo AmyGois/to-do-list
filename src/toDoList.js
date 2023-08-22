@@ -96,6 +96,11 @@ const projectManager = (() => {
     return projectCopy;
   };
 
+  const revealProjectTasksLength = (projectIndex) => {
+    const tasksLength = projects[projectIndex].tasks.length;
+    return tasksLength;
+  };
+
   const revealAllProjects = () => {
     const projectsCopy = deepCopyArray(projects);
 
@@ -159,6 +164,7 @@ const projectManager = (() => {
 
   return {
     revealProject,
+    revealProjectTasksLength,
     revealAllProjects,
     createNewProject,
     deleteProject,

@@ -411,7 +411,47 @@ const newTaskModal = (() => {
     toggleHidden(modal);
   };
 
-  return { openNewTaskModal };
+  const submitNewTask = (e) => {
+    const projectIndex = Number(newTaskBtn.dataset.projectIndex);
+    const newTitle = document.getElementById('new-task-name').value;
+    const newDescription = document.getElementById(
+      'new-task-description',
+    ).value;
+    const newDate = document.getElementById('new-task-date').value;
+    const newPriority = document.getElementById('new-task-priority').value;
+    const newSteps = stepsComponent.revealSteps();
+
+    if (newTitle !== '') {
+      e.preventDefault();
+      taskManager.createNewTask(
+        projectIndex,
+        newTitle,
+        newDescription,
+        newDate,
+        newPriority,
+        'to do',
+      );
+      const length = projectManager.revealProjectTasksLength(projectIndex);
+      newSteps.forEach((step) => {
+        stepManager.createNewStep(
+          projectIndex,
+          length - 1,
+          step.description,
+          step.status,
+        );
+      });
+      /* Swap console-log for function to render task */
+      console.log(taskManager.revealTask(projectIndex, length - 1));
+      allModals.closeModal(modal);
+    }
+  };
+
+  /* Functions to invoke on initilise, for the component to work properly */
+  const addNewTaskBtnLIstener = () => {
+    newTaskBtn.addEventListener('click', (e) => submitNewTask(e));
+  };
+
+  return { openNewTaskModal, addNewTaskBtnLIstener };
 })();
 
 /* **************************************************************
@@ -444,7 +484,7 @@ const stepsComponent = (() => {
     checkbox.setAttribute('name', `step-status-${index}`);
     checkbox.setAttribute('id', `step-status-${index}`);
     checkbox.dataset.stepIndex = index;
-    if (step.stepStatus === 'done') {
+    if (step.status === 'done') {
       checkbox.checked = true;
     }
     label.setAttribute('for', `step-status-${index}`);
@@ -572,7 +612,7 @@ const stepsComponent = (() => {
     if (newStepDescription.value !== '') {
       const step = {
         description: newStepDescription.value,
-        stepStatus: 'to do',
+        status: 'to do',
       };
       const listItem = document.createElement('li');
 
@@ -645,6 +685,7 @@ const initialiseUI = () => {
   editListModal.addEditBtnListener();
   deleteListModal.addCancelBtnListener();
   deleteListModal.addDeleteBtnListener();
+  newTaskModal.addNewTaskBtnLIstener();
 
   stepsComponent.addNewStepBtnListeners();
 };
