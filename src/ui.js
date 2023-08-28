@@ -18,6 +18,8 @@
 
   - Steps component module
 
+  - 'Delete task' modal module
+
 	- Initialiser function
 */
 /* **************************************************************
@@ -116,6 +118,7 @@ const navbar = (() => {
     );
   };
 
+  /* ---------- Change this? --------- */
   const renderDeletedList = (listIndex) => {
     const lists = document.getElementById('nav-todo-lists').children;
     for (const list of lists) {
@@ -176,9 +179,12 @@ const navbar = (() => {
 - Main module
 ************************************************************** */
 const main = (() => {
-  /* Header section */
+  const mainTasks = document.querySelector('main');
   const newTaskBtn = document.getElementById('main-new-task-button');
+  const unfinishedDiv = document.querySelector('.unfinished-tasks');
+  const finishedDiv = document.querySelector('.finished-tasks');
 
+  /* Header section */
   const renderHeader = (project) => {
     const listTitle = document.getElementById('main-list-title');
     const listDescription = document.getElementById('main-list-description');
@@ -205,22 +211,16 @@ const main = (() => {
   };
 
   const sendToFinishedDiv = (taskIndex) => {
-    const unfinishedDiv = document.querySelector('.unfinished-tasks');
-    const finishedDiv = document.querySelector('.finished-tasks');
     const taskToMove = unfinishedDiv.querySelector(
       `div[data-task-index='${taskIndex}']`,
     );
-
     finishedDiv.prepend(taskToMove);
   };
 
   const sendToUnfinishedDiv = (taskIndex) => {
-    const unfinishedDiv = document.querySelector('.unfinished-tasks');
-    const finishedDiv = document.querySelector('.finished-tasks');
     const taskToMove = finishedDiv.querySelector(
       `div[data-task-index='${taskIndex}']`,
     );
-
     unfinishedDiv.appendChild(taskToMove);
   };
 
@@ -244,7 +244,6 @@ const main = (() => {
 
   const renderTaskContent = (projectIndex, taskIndex) => {
     const task = taskManager.revealTask(projectIndex, taskIndex);
-    const mainTasks = document.querySelector('main');
     const taskItem = mainTasks
       .querySelector(`div[data-task-index='${taskIndex}']`)
       .querySelector('.task-item');
@@ -338,8 +337,6 @@ const main = (() => {
   };
 
   const renderTask = (projectIndex, taskIndex) => {
-    const todoDiv = document.querySelector('.unfinished-tasks');
-    /* const doneDiv = document.querySelector('.finished-tasks'); */
     const taskRow = document.createElement('div');
     const taskItem = document.createElement('div');
     const taskItemHeader = document.createElement('div');
@@ -403,7 +400,7 @@ const main = (() => {
     deleteTaskBtn.dataset.projectIndex = projectIndex;
     deleteTaskBtn.dataset.taskIndex = taskIndex;
 
-    todoDiv.appendChild(taskRow);
+    unfinishedDiv.appendChild(taskRow);
     taskRow.appendChild(taskItem);
     taskItem.appendChild(taskItemHeader);
     taskItemHeader.appendChild(taskTitle);
@@ -437,10 +434,34 @@ const main = (() => {
     titleCheckbox.addEventListener('change', () =>
       toggleTaskStatus(titleCheckbox, projectIndex, taskIndex),
     );
+    deleteTaskBtn.addEventListener('click', () =>
+      deleteTaskModal.openDeleteModal(
+        deleteTaskBtn.dataset.projectIndex,
+        deleteTaskBtn.dataset.taskIndex,
+      ),
+    );
 
     if (titleCheckbox.checked) {
       sendToFinishedDiv(taskIndex);
     }
+  };
+
+  const updateTaskIndices = (deletedIndex) => {
+    const allTaskIndices = mainTasks.querySelectorAll('[data-task-index]');
+    allTaskIndices.forEach((element) => {
+      const currentIndex = Number(element.dataset.taskIndex);
+      if (currentIndex >= Number(deletedIndex)) {
+        element.dataset.taskIndex = currentIndex - 1;
+      }
+    });
+  };
+
+  const renderDeletedTask = (taskIndex) => {
+    const taskToDelete = mainTasks.querySelector(
+      `div[data-task-index='${taskIndex}']`,
+    );
+    taskToDelete.remove();
+    updateTaskIndices(taskIndex);
   };
 
   /* Function to invoke on initilise, for the component to work properly */
@@ -457,6 +478,7 @@ const main = (() => {
     addNewTaskBtnListener,
     clearTasks,
     renderTask,
+    renderDeletedTask,
     init,
   };
 })();
@@ -906,6 +928,47 @@ const stepsComponent = (() => {
 })();
 
 /* **************************************************************
+- 'Delete task' modal module
+************************************************************** */
+const deleteTaskModal = (() => {
+  const modal = document.querySelector('.delete-task-modal').parentElement;
+  const cancelBtn = modal.querySelector('.cancel-button');
+  const deleteBtn = modal.querySelector('.delete-button');
+
+  const setProjectDataIndex = (projectIndex) => {
+    deleteBtn.dataset.projectIndex = projectIndex;
+  };
+
+  const setTaskDataIndex = (taskIndex) => {
+    deleteBtn.dataset.taskIndex = taskIndex;
+  };
+
+  const openDeleteModal = (projectIndex, taskIndex) => {
+    setProjectDataIndex(projectIndex);
+    setTaskDataIndex(taskIndex);
+    toggleHidden(modal);
+  };
+
+  const deleteTask = () => {
+    const projectIndex = Number(deleteBtn.dataset.projectIndex);
+    const taskIndex = Number(deleteBtn.dataset.taskIndex);
+    taskManager.deleteTask(projectIndex, taskIndex);
+    main.renderDeletedTask(taskIndex);
+    toggleHidden(modal);
+  };
+
+  /* Functions to invoke on initilise, for the component to work properly */
+  const addCancelBtnListener = () => {
+    cancelBtn.addEventListener('click', () => toggleHidden(modal));
+  };
+
+  const addDeleteBtnListener = () => {
+    deleteBtn.addEventListener('click', deleteTask);
+  };
+  return { openDeleteModal, addCancelBtnListener, addDeleteBtnListener };
+})();
+
+/* **************************************************************
 - Initialiser function
 ************************************************************** */
 const initialiseUI = () => {
@@ -925,6 +988,8 @@ const initialiseUI = () => {
   deleteListModal.addCancelBtnListener();
   deleteListModal.addDeleteBtnListener();
   newTaskModal.addNewTaskBtnLIstener();
+  deleteTaskModal.addCancelBtnListener();
+  deleteTaskModal.addDeleteBtnListener();
 
   stepsComponent.addNewStepBtnListeners();
 };
