@@ -205,6 +205,7 @@ main {
 
 .finished-tasks {
   border-top: 1px solid var(--highlight-colour-4);
+  padding-top: 24px;
 }
 
 .task-row {
