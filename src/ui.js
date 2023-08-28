@@ -16,7 +16,7 @@
 
   - 'New task' modal module
 
-  -- Steps component module
+  - Steps component module
 
 	- Initialiser function
 */
@@ -204,6 +204,245 @@ const main = (() => {
     });
   };
 
+  const sendToFinishedDiv = (taskIndex) => {
+    const unfinishedDiv = document.querySelector('.unfinished-tasks');
+    const finishedDiv = document.querySelector('.finished-tasks');
+    const taskToMove = unfinishedDiv.querySelector(
+      `div[data-task-index='${taskIndex}']`,
+    );
+
+    finishedDiv.prepend(taskToMove);
+  };
+
+  const sendToUnfinishedDiv = (taskIndex) => {
+    const unfinishedDiv = document.querySelector('.unfinished-tasks');
+    const finishedDiv = document.querySelector('.finished-tasks');
+    const taskToMove = finishedDiv.querySelector(
+      `div[data-task-index='${taskIndex}']`,
+    );
+
+    unfinishedDiv.appendChild(taskToMove);
+  };
+
+  const toggleTaskStatus = (checkbox, projectIndex, taskIndex) => {
+    if (checkbox.checked) {
+      taskManager.editTaskStatus(projectIndex, taskIndex, 'done');
+      sendToFinishedDiv(taskIndex);
+    } else if (!checkbox.checked) {
+      taskManager.editTaskStatus(projectIndex, taskIndex, 'to do');
+      sendToUnfinishedDiv(taskIndex);
+    }
+  };
+
+  const toggleStepStatus = (checkbox, projectIndex, taskIndex, stepIndex) => {
+    if (checkbox.checked) {
+      stepManager.editStepStatus(projectIndex, taskIndex, stepIndex, 'done');
+    } else if (!checkbox.checked) {
+      stepManager.editStepStatus(projectIndex, taskIndex, stepIndex, 'to do');
+    }
+  };
+
+  const renderTaskContent = (projectIndex, taskIndex) => {
+    const task = taskManager.revealTask(projectIndex, taskIndex);
+    const mainTasks = document.querySelector('main');
+    const taskItem = mainTasks
+      .querySelector(`div[data-task-index='${taskIndex}']`)
+      .querySelector('.task-item');
+    const priorityLevel = taskItem.querySelector('.task-priority-level');
+    const titleDiv = taskItem.querySelector('.task-title');
+    const titleCheckbox = titleDiv.querySelector('input');
+    const titleLabel = titleDiv.querySelector('label');
+    const description = taskItem.querySelector('.task-description');
+    const stepsList = taskItem.querySelector('.task-steps');
+
+    switch (task.priority) {
+      case 'low':
+        taskItem.classList.add('priority-low');
+        priorityLevel.textContent = 'Low';
+        break;
+      case 'medium':
+        taskItem.classList.add('priority-medium');
+        priorityLevel.textContent = 'Medium';
+        break;
+      case 'high':
+        taskItem.classList.add('priority-high');
+        priorityLevel.textContent = 'High';
+        break;
+      default:
+        taskItem.classList.add('priority-none');
+        priorityLevel.textContent = 'None';
+        break;
+    }
+    if (task.status === 'to do') {
+      titleCheckbox.checked = false;
+    } else if (task.status === 'done') {
+      titleCheckbox.checked = true;
+    }
+    titleLabel.textContent = task.title;
+    description.textContent = task.description;
+    task.steps.forEach((step) => {
+      const listItem = document.createElement('li');
+      const stepCheckbox = document.createElement('input');
+      const stepLabel = document.createElement('label');
+      const index = task.steps.indexOf(step);
+
+      stepCheckbox.setAttribute('type', 'checkbox');
+      stepCheckbox.setAttribute(
+        'name',
+        `project${projectIndex}-task${taskIndex}-step${index}`,
+      );
+      stepCheckbox.setAttribute(
+        'id',
+        `project${projectIndex}-task${taskIndex}-step${index}`,
+      );
+      if (step.status === 'to do') {
+        stepCheckbox.checked = false;
+      } else if (step.status === 'done') {
+        stepCheckbox.checked = true;
+      }
+      stepCheckbox.dataset.projectIndex = projectIndex;
+      stepCheckbox.dataset.taskIndex = taskIndex;
+      stepCheckbox.dataset.stepIndex = index;
+      stepLabel.setAttribute(
+        'for',
+        `project${projectIndex}-task${taskIndex}-step${index}`,
+      );
+      stepLabel.textContent = step.description;
+
+      stepCheckbox.addEventListener('change', () =>
+        toggleStepStatus(stepCheckbox, projectIndex, taskIndex, index),
+      );
+
+      listItem.appendChild(stepCheckbox);
+      listItem.appendChild(stepLabel);
+      stepsList.appendChild(listItem);
+    });
+    if (task.dueDate !== '') {
+      const dateSpan = taskItem.querySelector('.task-info');
+      const taskDueDate = taskItem.querySelector('.task-due-date');
+
+      dateSpan.textContent = 'Due by: ';
+      taskDueDate.textContent = task.dueDate;
+    }
+  };
+
+  const toggleTaskDetails = (img, body) => {
+    const btnImg = img.getAttribute('src');
+
+    if (btnImg === './icons/drop_down.svg') {
+      img.setAttribute('src', './icons/drop_down_left.svg');
+    } else if (btnImg === './icons/drop_down_left.svg') {
+      img.setAttribute('src', './icons/drop_down.svg');
+    }
+    toggleHidden(body);
+  };
+
+  const renderTask = (projectIndex, taskIndex) => {
+    const todoDiv = document.querySelector('.unfinished-tasks');
+    /* const doneDiv = document.querySelector('.finished-tasks'); */
+    const taskRow = document.createElement('div');
+    const taskItem = document.createElement('div');
+    const taskItemHeader = document.createElement('div');
+    const taskTitle = document.createElement('div');
+    const titleCheckbox = document.createElement('input');
+    const titleLabel = document.createElement('label');
+    const taskItemReveal = document.createElement('div');
+    const taskRevealBtn = document.createElement('button');
+    const taskRevealImg = document.createElement('img');
+    const taskItemBody = document.createElement('div');
+    const taskDescription = document.createElement('p');
+    const taskSteps = document.createElement('ul');
+    const taskDateDiv = document.createElement('div');
+    const dateSpan = document.createElement('span');
+    const taskDueDate = document.createElement('span');
+    const dateInfoSpan = document.createElement('span');
+    const taskPriorityDiv = document.createElement('div');
+    const prioritySpan = document.createElement('span');
+    const taskPriorityLevel = document.createElement('span');
+    const taskRowBtns = document.createElement('div');
+    const editTaskBtn = document.createElement('button');
+    const editTaskImg = document.createElement('img');
+    const deleteTaskBtn = document.createElement('button');
+    const deleteTaskImg = document.createElement('img');
+
+    taskRow.classList.add('task-row');
+    taskRow.dataset.projectIndex = projectIndex;
+    taskRow.dataset.taskIndex = taskIndex;
+    taskItem.classList.add('task-item');
+    taskItemHeader.classList.add('task-item-header');
+    taskTitle.classList.add('task-title');
+    titleCheckbox.setAttribute('type', 'checkbox');
+    titleCheckbox.setAttribute(
+      'name',
+      `project${projectIndex}-task${taskIndex}`,
+    );
+    titleCheckbox.setAttribute('id', `project${projectIndex}-task${taskIndex}`);
+    titleCheckbox.dataset.projectIndex = projectIndex;
+    titleCheckbox.dataset.taskIndex = taskIndex;
+    titleLabel.setAttribute('for', `project${projectIndex}-task${taskIndex}`);
+    taskItemReveal.classList.add('task-item-reveal');
+    taskRevealBtn.classList.add('task-reveal-button');
+    taskRevealImg.setAttribute('src', './icons/drop_down.svg');
+    taskRevealImg.setAttribute('alt', 'show task details dropdown');
+    taskItemBody.classList.add('task-item-body', 'hidden');
+    taskDescription.classList.add('task-description');
+    taskSteps.classList.add('task-steps');
+    dateSpan.classList.add('task-info');
+    taskDueDate.classList.add('task-due-date');
+    dateInfoSpan.classList.add('task-date-info');
+    prioritySpan.classList.add('task-info');
+    prioritySpan.textContent = 'Priority: ';
+    taskPriorityLevel.classList.add('task-priority-level');
+    taskRowBtns.classList.add('task-row-buttons');
+    editTaskImg.setAttribute('src', './icons/edit.svg');
+    editTaskImg.setAttribute('alt', 'edit task button');
+    editTaskBtn.dataset.projectIndex = projectIndex;
+    editTaskBtn.dataset.taskIndex = taskIndex;
+    deleteTaskImg.setAttribute('src', './icons/delete.svg');
+    deleteTaskImg.setAttribute('alt', 'delete task button');
+    deleteTaskBtn.dataset.projectIndex = projectIndex;
+    deleteTaskBtn.dataset.taskIndex = taskIndex;
+
+    todoDiv.appendChild(taskRow);
+    taskRow.appendChild(taskItem);
+    taskItem.appendChild(taskItemHeader);
+    taskItemHeader.appendChild(taskTitle);
+    taskTitle.appendChild(titleCheckbox);
+    taskTitle.appendChild(titleLabel);
+    taskItemHeader.appendChild(taskItemReveal);
+    taskItemReveal.appendChild(taskRevealBtn);
+    taskRevealBtn.appendChild(taskRevealImg);
+    taskItem.appendChild(taskItemBody);
+    taskItemBody.appendChild(taskDescription);
+    taskItemBody.appendChild(taskSteps);
+    taskItemBody.appendChild(taskDateDiv);
+    taskDateDiv.appendChild(dateSpan);
+    taskDateDiv.appendChild(taskDueDate);
+    taskDateDiv.appendChild(dateInfoSpan);
+    taskItemBody.appendChild(taskPriorityDiv);
+    taskPriorityDiv.appendChild(prioritySpan);
+    taskPriorityDiv.appendChild(taskPriorityLevel);
+    taskRow.appendChild(taskRowBtns);
+    taskRowBtns.appendChild(editTaskBtn);
+    editTaskBtn.appendChild(editTaskImg);
+    taskRowBtns.appendChild(deleteTaskBtn);
+    deleteTaskBtn.appendChild(deleteTaskImg);
+
+    renderTaskContent(projectIndex, taskIndex);
+
+    /* Add edit & delete listeners here */
+    taskRevealBtn.addEventListener('click', () =>
+      toggleTaskDetails(taskRevealImg, taskItemBody),
+    );
+    titleCheckbox.addEventListener('change', () =>
+      toggleTaskStatus(titleCheckbox, projectIndex, taskIndex),
+    );
+
+    if (titleCheckbox.checked) {
+      sendToFinishedDiv(taskIndex);
+    }
+  };
+
   /* Function to invoke on initilise, for the component to work properly */
   const init = () => {
     const firstProject = projectManager.revealProject(0);
@@ -215,8 +454,9 @@ const main = (() => {
   return {
     renderHeader,
     setNewTaskBtnIndex,
-    clearTasks,
     addNewTaskBtnListener,
+    clearTasks,
+    renderTask,
     init,
   };
 })();
@@ -440,8 +680,7 @@ const newTaskModal = (() => {
           step.status,
         );
       });
-      /* Swap console-log for function to render task */
-      console.log(taskManager.revealTask(projectIndex, length - 1));
+      main.renderTask(projectIndex, length - 1);
       allModals.closeModal(modal);
     }
   };
