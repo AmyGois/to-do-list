@@ -56,18 +56,20 @@ const header = (() => {
 - Navbar module
 ************************************************************** */
 const navbar = (() => {
+  const navList = document.getElementById('nav-todo-lists');
+
   const setProjectDataIndex = (element, index) => {
     element.dataset.projectIndex = index;
   };
 
   const calculateNewProjectIndex = () => {
-    const lists = document.getElementById('nav-todo-lists').children;
+    const lists = navList.children;
     const newIndex = lists.length + 1;
     return newIndex;
   };
 
   const updateAllProjectIndices = () => {
-    const currentLists = document.getElementById('nav-todo-lists').children;
+    const currentLists = navList.children;
     let updatedIndex = 1;
     for (const list of currentLists) {
       const link = list.querySelector('a');
@@ -81,7 +83,6 @@ const navbar = (() => {
   };
 
   const renderNewList = (list, listIndex) => {
-    const navList = document.getElementById('nav-todo-lists');
     const listItem = document.createElement('li');
     const link = document.createElement('a');
     const div = document.createElement('div');
@@ -118,28 +119,19 @@ const navbar = (() => {
     );
   };
 
-  /* ---------- Change this? --------- */
   const renderDeletedList = (listIndex) => {
-    const lists = document.getElementById('nav-todo-lists').children;
-    for (const list of lists) {
-      const link = list.querySelector('a');
-      if (link.dataset.projectIndex === String(listIndex)) {
-        list.remove();
-        updateAllProjectIndices();
-        break;
-      }
-    }
+    const listToDelete = navList.querySelector(
+      `[data-project-index='${listIndex}']`,
+    ).parentElement;
+    listToDelete.remove();
+    updateAllProjectIndices();
   };
 
   const renderEditedList = (listIndex, project) => {
-    const lists = document.getElementById('nav-todo-lists').children;
-    for (const list of lists) {
-      const link = list.querySelector('a');
-      if (link.dataset.projectIndex === String(listIndex)) {
-        link.textContent = project.title;
-        break;
-      }
-    }
+    const listToEdit = navList.querySelector(
+      `a[data-project-index='${listIndex}']`,
+    );
+    listToEdit.textContent = project.title;
   };
 
   /* Functions to invoke on initilise, for the component to work properly */
