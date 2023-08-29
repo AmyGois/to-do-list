@@ -18,6 +18,8 @@
 
   - Steps component module
 
+  - 'Edit task' modal module
+
   - 'Delete task' modal module
 
 	- Initialiser function
@@ -419,12 +421,17 @@ const main = (() => {
 
     renderTaskContent(projectIndex, taskIndex);
 
-    /* Add edit & delete listeners here */
     taskRevealBtn.addEventListener('click', () =>
       toggleTaskDetails(taskRevealImg, taskItemBody),
     );
     titleCheckbox.addEventListener('change', () =>
       toggleTaskStatus(titleCheckbox, projectIndex, taskIndex),
+    );
+    editTaskBtn.addEventListener('click', () =>
+      editTaskModal.openEditTaskModal(
+        editTaskBtn.dataset.projectIndex,
+        editTaskBtn.dataset.taskIndex,
+      ),
     );
     deleteTaskBtn.addEventListener('click', () =>
       deleteTaskModal.openDeleteModal(
@@ -484,6 +491,7 @@ const allModals = (() => {
     const inputs = modal.querySelectorAll('input');
     const textareas = modal.querySelectorAll('textarea');
     const selectOption = modal.querySelector('option');
+    const stepsList = modal.querySelector('.modal-steps-list');
     if (inputs) {
       inputs.forEach((input) => {
         input.value = '';
@@ -496,6 +504,9 @@ const allModals = (() => {
     }
     if (selectOption) {
       selectOption.selected = true;
+    }
+    if (stepsList) {
+      stepsComponent.clearAllSteps(stepsList);
     }
   };
 
@@ -708,215 +719,43 @@ const newTaskModal = (() => {
 })();
 
 /* **************************************************************
-- Steps component module
+- 'Edit task' modal module
 ************************************************************** */
-const stepsComponent = (() => {
-  const newStepBtns = document.querySelectorAll('.add-step-button');
-  let modal;
-  let stepsList;
-  let newStepBtn;
-  const steps = [];
+const editTaskModal = (() => {
+  const modal = document.querySelector('.edit-task-modal').parentElement;
+  const editBtn = document.getElementById('edit-task-submit-button');
+  const stepsList = modal.querySelector('.modal-steps-list');
 
-  const clearAllSteps = (ul) => {
-    const ulToClear = ul;
-    steps.length = 0;
-    ulToClear.innerHTML = '';
+  const setProjectDataIndex = (projectIndex) => {
+    editBtn.dataset.projectIndex = projectIndex;
   };
 
-  const revealSteps = () => steps;
+  const setTaskDataIndex = (taskIndex) => {
+    editBtn.dataset.taskIndex = taskIndex;
+  };
 
-  const renderStep = (listItem, step, index) => {
-    const checkbox = document.createElement('input');
-    const label = document.createElement('label');
-    const editStepBtn = document.createElement('button');
-    const editStepImg = document.createElement('img');
-    const deleteStepBtn = document.createElement('button');
-    const deleteStepImg = document.createElement('img');
+  const openEditTaskModal = (projectIndex, taskIndex) => {
+    const taskToEdit = taskManager.revealTask(projectIndex, taskIndex);
+    const titleInput = document.getElementById('edit-task-name');
+    const descriptionInput = document.getElementById('edit-task-description');
+    const dateInput = document.getElementById('edit-task-date');
+    const priorityInput = document.getElementById('edit-task-priority');
 
-    checkbox.setAttribute('type', 'checkbox');
-    checkbox.setAttribute('name', `step-status-${index}`);
-    checkbox.setAttribute('id', `step-status-${index}`);
-    checkbox.dataset.stepIndex = index;
-    if (step.status === 'done') {
-      checkbox.checked = true;
-    }
-    label.setAttribute('for', `step-status-${index}`);
-    label.textContent = step.description;
-    editStepBtn.classList.add('steps-list-item-button');
-    editStepBtn.dataset.stepIndex = index;
-    editStepImg.setAttribute('src', './icons/edit.svg');
-    editStepImg.setAttribute('alt', 'edit step button');
-    deleteStepBtn.classList.add('steps-list-item-button');
-    deleteStepBtn.dataset.stepIndex = index;
-    deleteStepImg.setAttribute('src', './icons/delete.svg');
-    deleteStepImg.setAttribute('alt', 'delete step button');
-
-    checkbox.addEventListener('change', () =>
-      updateStepStatus(checkbox.checked, Number(checkbox.dataset.stepIndex)),
+    setProjectDataIndex(projectIndex);
+    setTaskDataIndex(taskIndex);
+    titleInput.value = taskToEdit.title;
+    descriptionInput.value = taskToEdit.description;
+    taskToEdit.steps.forEach((step) =>
+      stepsComponent.makeStep(step, stepsList),
     );
-    editStepBtn.addEventListener('click', (ev) =>
-      renderEditStep(ev, editStepBtn.dataset.stepIndex),
-    );
-    deleteStepBtn.addEventListener('click', (ev) =>
-      deleteStep(ev, deleteStepBtn.dataset.stepIndex),
-    );
-
-    listItem.appendChild(checkbox);
-    listItem.appendChild(label);
-    listItem.appendChild(editStepBtn);
-    editStepBtn.appendChild(editStepImg);
-    listItem.appendChild(deleteStepBtn);
-    deleteStepBtn.appendChild(deleteStepImg);
-  };
-
-  const updateStepIdices = () => {
-    const allSteps = stepsList.children;
-    let index = 0;
-    for (const listItem of allSteps) {
-      const checkbox = listItem.querySelector('input');
-      const label = listItem.querySelector('label');
-      const buttons = listItem.querySelectorAll('.steps-list-item-button');
-
-      checkbox.setAttribute('name', `step-status-${index}`);
-      checkbox.setAttribute('id', `step-status-${index}`);
-      checkbox.dataset.stepIndex = index;
-      label.setAttribute('for', `step-status-${index}`);
-      buttons.forEach((button) => {
-        button.dataset.stepIndex = index;
-      });
-      index += 1;
+    if (taskToEdit.dueDate !== '') {
+      dateInput.value = taskToEdit.dueDate;
     }
+    priorityInput.value = taskToEdit.priority;
+    toggleHidden(modal);
   };
 
-  const updateStepStatus = (newStatus, index) => {
-    if (newStatus === true) {
-      steps[index].status = 'done';
-    } else if (newStatus === false) {
-      steps[index].status = 'to do';
-    }
-  };
-
-  const editStep = (e, stepIndex, editedStepValue) => {
-    const stepToEdit = e.target.closest('li');
-    const input = stepToEdit.querySelector('input');
-    const submitStepBtn = input.nextElementSibling;
-    const editStepBtn = document.createElement('button');
-    const editStepImg = document.createElement('img');
-    const deleteStepBtn = document.createElement('button');
-    const deleteStepImg = document.createElement('img');
-
-    if (editedStepValue !== '') {
-      e.preventDefault();
-      e.stopPropagation();
-      steps[stepIndex].description = editedStepValue;
-      input.remove();
-      submitStepBtn.remove();
-      renderStep(stepToEdit, steps[stepIndex], stepIndex);
-    }
-  };
-
-  const renderEditStep = (ev, index) => {
-    const stepIndex = Number(index);
-    const stepToEdit = ev.target.closest('li');
-    const input = document.createElement('input');
-    const submitStepBtn = document.createElement('button');
-    const submitImg = document.createElement('img');
-
-    ev.preventDefault();
-    ev.stopPropagation();
-    stepToEdit.innerHTML = '';
-
-    input.setAttribute('type', 'text');
-    input.setAttribute('name', 'modal-edit-step');
-    input.setAttribute('id', 'modal-edit-step');
-    input.required = true;
-    input.value = steps[stepIndex].description;
-    submitStepBtn.textContent = 'Alter step';
-    submitImg.setAttribute('src', './icons/confirm.svg');
-    submitImg.setAttribute('alt', 'confirm edit button');
-
-    stepToEdit.appendChild(input);
-    stepToEdit.appendChild(submitStepBtn);
-    submitStepBtn.appendChild(submitImg);
-
-    submitStepBtn.addEventListener('click', (e) =>
-      editStep(e, stepIndex, input.value),
-    );
-  };
-
-  const deleteStep = (ev, index) => {
-    const stepIndex = Number(index);
-    const stepToDelete = ev.target.closest('li');
-
-    ev.preventDefault();
-    ev.stopPropagation();
-    steps.splice(stepIndex, 1);
-    stepToDelete.remove();
-    updateStepIdices();
-  };
-
-  const addStep = (evt) => {
-    const newStepDescription = document.getElementById('modal-add-step');
-    const stepCreator = document.getElementById('modal-add-step').parentElement;
-    const stepsList = document.querySelector('.modal-steps-list');
-
-    evt.preventDefault();
-    evt.stopPropagation();
-    if (newStepDescription.value !== '') {
-      const step = {
-        description: newStepDescription.value,
-        status: 'to do',
-      };
-      const listItem = document.createElement('li');
-
-      steps.push(step);
-      stepsList.appendChild(listItem);
-      renderStep(listItem, steps[steps.length - 1], steps.length - 1);
-    }
-    toggleHidden(newStepBtn);
-    stepCreator.remove();
-  };
-
-  const renderCreateStep = (e) => {
-    const listItem = document.createElement('li');
-    const input = document.createElement('input');
-    const submitStepBtn = document.createElement('button');
-    const submitImg = document.createElement('img');
-
-    e.preventDefault();
-    input.setAttribute('type', 'text');
-    input.setAttribute('name', 'modal-add-step');
-    input.setAttribute('id', 'modal-add-step');
-    submitStepBtn.textContent = 'Add step';
-    submitImg.setAttribute('src', './icons/confirm.svg');
-    submitImg.setAttribute('alt', 'confirm step button');
-
-    submitStepBtn.appendChild(submitImg);
-    listItem.appendChild(input);
-    listItem.appendChild(submitStepBtn);
-    stepsList.appendChild(listItem);
-
-    submitStepBtn.addEventListener('click', (evt) => addStep(evt));
-    toggleHidden(newStepBtn);
-  };
-
-  /* Function to invoke on initilise, for the component to work properly */
-  const addNewStepBtnListeners = () => {
-    newStepBtns.forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        if (e.target.closest('.new-task-modal')) {
-          modal = e.target.closest('.new-task-modal').parentElement;
-        } else if (e.target.closest('edit-task-modal')) {
-          modal = e.target.closest('edit-task-modal').parentElement;
-        }
-        stepsList = modal.querySelector('.modal-steps-list');
-        newStepBtn = modal.querySelector('.add-step-button');
-        renderCreateStep(e);
-      });
-    });
-  };
-
-  return { clearAllSteps, revealSteps, addNewStepBtnListeners };
+  return { openEditTaskModal };
 })();
 
 /* **************************************************************
@@ -958,6 +797,239 @@ const deleteTaskModal = (() => {
     deleteBtn.addEventListener('click', deleteTask);
   };
   return { openDeleteModal, addCancelBtnListener, addDeleteBtnListener };
+})();
+
+/* **************************************************************
+- Steps component module
+************************************************************** */
+const stepsComponent = (() => {
+  /* const newStepBtns = document.querySelectorAll('.add-step-button');
+  let modal;
+  let stepsList;
+  let newStepBtn; */
+
+  /* Variables for the 'New task' modal */
+  const modalNew = document.querySelector('.new-task-modal').parentElement;
+  const stepsListNew = modalNew.querySelector('.modal-steps-list');
+  const addStepBtnNew = modalNew.querySelector('.add-step-button');
+  /* Variables for the 'Edit task' modal */
+  const modalEdit = document.querySelector('.edit-task-modal').parentElement;
+  const stepsListEdit = modalEdit.querySelector('.modal-steps-list');
+  const addStepBtnEdit = modalEdit.querySelector('.add-step-button');
+
+  const steps = [];
+
+  const clearAllSteps = (ul) => {
+    const ulToClear = ul;
+    steps.length = 0;
+    ulToClear.innerHTML = '';
+  };
+
+  const revealSteps = () => steps;
+
+  const renderStep = (listItem, step, index, stepsList) => {
+    const checkbox = document.createElement('input');
+    const label = document.createElement('label');
+    const editStepBtn = document.createElement('button');
+    const editStepImg = document.createElement('img');
+    const deleteStepBtn = document.createElement('button');
+    const deleteStepImg = document.createElement('img');
+
+    checkbox.setAttribute('type', 'checkbox');
+    checkbox.setAttribute('name', `step-status-${index}`);
+    checkbox.setAttribute('id', `step-status-${index}`);
+    checkbox.dataset.stepIndex = index;
+    if (step.status === 'done') {
+      checkbox.checked = true;
+    }
+    label.setAttribute('for', `step-status-${index}`);
+    label.textContent = step.description;
+    editStepBtn.classList.add('steps-list-item-button');
+    editStepBtn.dataset.stepIndex = index;
+    editStepImg.setAttribute('src', './icons/edit.svg');
+    editStepImg.setAttribute('alt', 'edit step button');
+    deleteStepBtn.classList.add('steps-list-item-button');
+    deleteStepBtn.dataset.stepIndex = index;
+    deleteStepImg.setAttribute('src', './icons/delete.svg');
+    deleteStepImg.setAttribute('alt', 'delete step button');
+
+    checkbox.addEventListener('change', () =>
+      updateStepStatus(checkbox.checked, Number(checkbox.dataset.stepIndex)),
+    );
+    editStepBtn.addEventListener('click', (ev) =>
+      renderEditStep(ev, editStepBtn.dataset.stepIndex, stepsList),
+    );
+    deleteStepBtn.addEventListener('click', (ev) =>
+      deleteStep(ev, deleteStepBtn.dataset.stepIndex, stepsList),
+    );
+
+    listItem.appendChild(checkbox);
+    listItem.appendChild(label);
+    listItem.appendChild(editStepBtn);
+    editStepBtn.appendChild(editStepImg);
+    listItem.appendChild(deleteStepBtn);
+    deleteStepBtn.appendChild(deleteStepImg);
+  };
+
+  const updateStepIdices = (stepsList) => {
+    const allSteps = stepsList.children;
+    let index = 0;
+    for (const listItem of allSteps) {
+      const checkbox = listItem.querySelector('input');
+      const label = listItem.querySelector('label');
+      const buttons = listItem.querySelectorAll('.steps-list-item-button');
+
+      checkbox.setAttribute('name', `step-status-${index}`);
+      checkbox.setAttribute('id', `step-status-${index}`);
+      checkbox.dataset.stepIndex = index;
+      label.setAttribute('for', `step-status-${index}`);
+      buttons.forEach((button) => {
+        button.dataset.stepIndex = index;
+      });
+      index += 1;
+    }
+  };
+
+  const updateStepStatus = (newStatus, index) => {
+    if (newStatus === true) {
+      steps[index].status = 'done';
+    } else if (newStatus === false) {
+      steps[index].status = 'to do';
+    }
+  };
+
+  const editStep = (e, stepIndex, editedStepValue, stepsList) => {
+    const stepToEdit = e.target.closest('li');
+    const input = stepToEdit.querySelector('input');
+    const submitStepBtn = input.nextElementSibling;
+    /* const editStepBtn = document.createElement('button');
+    const editStepImg = document.createElement('img');
+    const deleteStepBtn = document.createElement('button');
+    const deleteStepImg = document.createElement('img'); */
+
+    if (editedStepValue !== '') {
+      e.preventDefault();
+      e.stopPropagation();
+      steps[stepIndex].description = editedStepValue;
+      input.remove();
+      submitStepBtn.remove();
+      renderStep(stepToEdit, steps[stepIndex], stepIndex, stepsList);
+    }
+  };
+
+  const renderEditStep = (ev, index, stepsList) => {
+    const stepIndex = Number(index);
+    const stepToEdit = ev.target.closest('li');
+    const input = document.createElement('input');
+    const submitStepBtn = document.createElement('button');
+    const submitImg = document.createElement('img');
+
+    ev.preventDefault();
+    ev.stopPropagation();
+    stepToEdit.innerHTML = '';
+
+    input.setAttribute('type', 'text');
+    input.setAttribute('name', 'modal-edit-step');
+    input.setAttribute('id', 'modal-edit-step');
+    input.required = true;
+    input.value = steps[stepIndex].description;
+    submitStepBtn.textContent = 'Alter step';
+    submitImg.setAttribute('src', './icons/confirm.svg');
+    submitImg.setAttribute('alt', 'confirm edit button');
+
+    stepToEdit.appendChild(input);
+    stepToEdit.appendChild(submitStepBtn);
+    submitStepBtn.appendChild(submitImg);
+
+    submitStepBtn.addEventListener('click', (e) =>
+      editStep(e, stepIndex, input.value, stepsList),
+    );
+  };
+
+  const deleteStep = (ev, index, stepsList) => {
+    const stepIndex = Number(index);
+    const stepToDelete = ev.target.closest('li');
+
+    ev.preventDefault();
+    ev.stopPropagation();
+    steps.splice(stepIndex, 1);
+    stepToDelete.remove();
+    updateStepIdices(stepsList);
+  };
+
+  const makeStep = (step, stepsList) => {
+    const listItem = document.createElement('li');
+
+    steps.push(step);
+    stepsList.appendChild(listItem);
+    renderStep(listItem, steps[steps.length - 1], steps.length - 1, stepsList);
+  };
+
+  const addNewStep = (evt, stepsList, newStepBtn) => {
+    const newStepDescription = document.getElementById('modal-add-step');
+    const stepCreator = document.getElementById('modal-add-step').parentElement;
+
+    evt.preventDefault();
+    evt.stopPropagation();
+    if (newStepDescription.value !== '') {
+      const step = {
+        description: newStepDescription.value,
+        status: 'to do',
+      };
+      makeStep(step, stepsList);
+    }
+    toggleHidden(newStepBtn);
+    stepCreator.remove();
+  };
+
+  const renderCreateStep = (e, stepsList, newStepBtn) => {
+    const listItem = document.createElement('li');
+    const input = document.createElement('input');
+    const submitStepBtn = document.createElement('button');
+    const submitImg = document.createElement('img');
+
+    e.preventDefault();
+    input.setAttribute('type', 'text');
+    input.setAttribute('name', 'modal-add-step');
+    input.setAttribute('id', 'modal-add-step');
+    submitStepBtn.textContent = 'Add step';
+    submitImg.setAttribute('src', './icons/confirm.svg');
+    submitImg.setAttribute('alt', 'confirm step button');
+
+    submitStepBtn.appendChild(submitImg);
+    listItem.appendChild(input);
+    listItem.appendChild(submitStepBtn);
+    stepsList.appendChild(listItem);
+
+    submitStepBtn.addEventListener('click', (evt) =>
+      addNewStep(evt, stepsList, newStepBtn),
+    );
+    toggleHidden(newStepBtn);
+  };
+
+  /* Function to invoke on initilise, for the component to work properly */
+  const addNewStepBtnListeners = () => {
+    /* newStepBtns.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        if (e.target.closest('.new-task-modal')) {
+          modal = e.target.closest('.new-task-modal').parentElement;
+        } else if (e.target.closest('.edit-task-modal')) {
+          modal = e.target.closest('.edit-task-modal').parentElement;
+        }
+        stepsList = modal.querySelector('.modal-steps-list');
+        newStepBtn = modal.querySelector('.add-step-button');
+        renderCreateStep(e);
+      });
+    }); */
+    addStepBtnNew.addEventListener('click', (e) =>
+      renderCreateStep(e, stepsListNew, addStepBtnNew),
+    );
+    addStepBtnEdit.addEventListener('click', (e) =>
+      renderCreateStep(e, stepsListEdit, addStepBtnEdit),
+    );
+  };
+
+  return { clearAllSteps, revealSteps, makeStep, addNewStepBtnListeners };
 })();
 
 /* **************************************************************
