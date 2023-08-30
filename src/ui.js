@@ -273,6 +273,7 @@ const main = (() => {
     }
     titleLabel.textContent = task.title;
     description.textContent = task.description;
+    stepsList.innerHTML = '';
     task.steps.forEach((step) => {
       const listItem = document.createElement('li');
       const stepCheckbox = document.createElement('input');
@@ -476,6 +477,7 @@ const main = (() => {
     setNewTaskBtnIndex,
     addNewTaskBtnListener,
     clearTasks,
+    renderTaskContent,
     renderTask,
     renderDeletedTask,
     init,
@@ -725,6 +727,10 @@ const editTaskModal = (() => {
   const modal = document.querySelector('.edit-task-modal').parentElement;
   const editBtn = document.getElementById('edit-task-submit-button');
   const stepsList = modal.querySelector('.modal-steps-list');
+  const titleInput = document.getElementById('edit-task-name');
+  const descriptionInput = document.getElementById('edit-task-description');
+  const dateInput = document.getElementById('edit-task-date');
+  const priorityInput = document.getElementById('edit-task-priority');
 
   const setProjectDataIndex = (projectIndex) => {
     editBtn.dataset.projectIndex = projectIndex;
@@ -734,15 +740,16 @@ const editTaskModal = (() => {
     editBtn.dataset.taskIndex = taskIndex;
   };
 
+  /* const setStepsDataLength = (stepsLength) => {
+    editBtn.dataset.stepsLength = stepsLength;
+  }; */
+
   const openEditTaskModal = (projectIndex, taskIndex) => {
     const taskToEdit = taskManager.revealTask(projectIndex, taskIndex);
-    const titleInput = document.getElementById('edit-task-name');
-    const descriptionInput = document.getElementById('edit-task-description');
-    const dateInput = document.getElementById('edit-task-date');
-    const priorityInput = document.getElementById('edit-task-priority');
 
     setProjectDataIndex(projectIndex);
     setTaskDataIndex(taskIndex);
+    /* setStepsDataLength(taskToEdit.steps.length); */
     titleInput.value = taskToEdit.title;
     descriptionInput.value = taskToEdit.description;
     taskToEdit.steps.forEach((step) =>
@@ -755,7 +762,98 @@ const editTaskModal = (() => {
     toggleHidden(modal);
   };
 
-  return { openEditTaskModal };
+  const editTask = (e) => {
+    if (titleInput.value !== '') {
+      const projectIndex = Number(editBtn.dataset.projectIndex);
+      const taskIndex = Number(editBtn.dataset.taskIndex);
+      const taskToEdit = taskManager.revealTask(projectIndex, taskIndex);
+      const oldSteps = taskToEdit.steps;
+      const editedSteps = stepsComponent.revealSteps();
+
+      e.preventDefault();
+      taskManager.editTaskTitle(projectIndex, taskIndex, titleInput.value);
+      taskManager.editTaskDescription(
+        projectIndex,
+        taskIndex,
+        descriptionInput.value,
+      );
+      taskManager.editTaskDueDate(projectIndex, taskIndex, dateInput.value);
+      taskManager.editTaskPriority(
+        projectIndex,
+        taskIndex,
+        priorityInput.value,
+      );
+      if (oldSteps.length > 0 && editedSteps.length > 0) {
+        console.log('Both have steps');
+        for (
+          let i = 0;
+          i < Math.min(oldSteps.length, editedSteps.length);
+          i++
+        ) {
+          if (editedSteps[i].description !== oldSteps[i].description) {
+            stepManager.editStepDescription(
+              projectIndex,
+              taskIndex,
+              i,
+              editedSteps[i].description,
+            );
+          }
+          if (editedSteps[i].status !== oldSteps[i].status) {
+            stepManager.editStepStatus(
+              projectIndex,
+              taskIndex,
+              i,
+              editedSteps[i].status,
+            );
+          }
+        }
+        if (oldSteps.length > editedSteps.length) {
+          console.log('There are less steps than before');
+          let i = oldSteps.length - 1;
+          while (i >= editedSteps.length) {
+            stepManager.deleteStep(projectIndex, taskIndex, i);
+            i--;
+          }
+        } else if (oldSteps.length < editedSteps.length) {
+          console.log('There are more steps than before');
+          for (let i = oldSteps.length; i < editedSteps.length; i++) {
+            stepManager.createNewStep(
+              projectIndex,
+              taskIndex,
+              editedSteps[i].description,
+              editedSteps[i].status,
+            );
+          }
+        }
+      } else if (oldSteps.length === 0 && editedSteps.length > 0) {
+        console.log('No old steps, add new ones');
+        editedSteps.forEach((step) => {
+          stepManager.createNewStep(
+            projectIndex,
+            taskIndex,
+            step.description,
+            step.status,
+          );
+        });
+      } else if (oldSteps.length > 0 && editedSteps.length === 0) {
+        console.log('Delete all old steps');
+        let i = oldSteps.length - 1;
+        while (i >= 0) {
+          stepManager.deleteStep(projectIndex, taskIndex, i);
+          i--;
+        }
+      }
+      main.renderTaskContent(projectIndex, taskIndex);
+      allModals.closeModal(modal);
+    }
+  };
+
+  /* Function to invoke on initilise, for the component to work properly */
+  const addEditBtnListener = () => {
+    editBtn.addEventListener('click', (e) => editTask(e));
+  };
+
+  return { openEditTaskModal, addEditBtnListener };
 })();
 
 /* **************************************************************
@@ -1052,6 +1150,7 @@ const initialiseUI = () => {
   deleteListModal.addCancelBtnListener();
   deleteListModal.addDeleteBtnListener();
   newTaskModal.addNewTaskBtnLIstener();
+  editTaskModal.addEditBtnListener();
   deleteTaskModal.addCancelBtnListener();
   deleteTaskModal.addDeleteBtnListener();
 
