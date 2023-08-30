@@ -12,6 +12,8 @@
 
 	- 'New List' modal module
 
+  - 'Edit list' modal module
+
   - 'Delete list' modal module
 
   - 'New task' modal module
@@ -113,6 +115,12 @@ const navbar = (() => {
     listItem.appendChild(div);
     navList.appendChild(listItem);
 
+    link.addEventListener('click', () => {
+      main.renderMain(
+        projectManager.revealProject(Number(link.dataset.projectIndex)),
+        Number(link.dataset.projectIndex),
+      );
+    });
     editBtn.addEventListener('click', () =>
       editListModal.openEditModal(editBtn.dataset.projectIndex),
     );
@@ -136,7 +144,6 @@ const navbar = (() => {
     listToEdit.textContent = project.title;
   };
 
-  /* Functions to invoke on initilise, for the component to work properly */
   const renderCurrentLists = () => {
     const lists = projectManager.revealAllProjects();
     lists.forEach((list) => {
@@ -146,9 +153,12 @@ const navbar = (() => {
     });
   };
 
-  const setInboxProjectIndex = () => {
+  const setInboxIndexAndListener = () => {
     const inbox = document.getElementById('nav-list-inbox');
     setProjectDataIndex(inbox, 0);
+    inbox.addEventListener('click', () => {
+      main.renderMain(projectManager.revealProject(0), 0);
+    });
   };
 
   const addNewListBtnListener = () => {
@@ -158,14 +168,19 @@ const navbar = (() => {
     newListBtn.addEventListener('click', () => toggleHidden(modalNewList));
   };
 
+  /* Function to invoke on initilise, for the component to work properly */
+  const init = () => {
+    renderCurrentLists();
+    setInboxIndexAndListener();
+    addNewListBtnListener();
+  };
+
   return {
     calculateNewProjectIndex,
     renderNewList,
     renderDeletedList,
     renderEditedList,
-    renderCurrentLists,
-    setInboxProjectIndex,
-    addNewListBtnListener,
+    init,
   };
 })();
 
@@ -250,19 +265,23 @@ const main = (() => {
 
     switch (task.priority) {
       case 'low':
-        taskItem.classList.add('priority-low');
+        taskItem.className = '';
+        taskItem.classList.add('task-item', 'priority-low');
         priorityLevel.textContent = 'Low';
         break;
       case 'medium':
-        taskItem.classList.add('priority-medium');
+        taskItem.className = '';
+        taskItem.classList.add('task-item', 'priority-medium');
         priorityLevel.textContent = 'Medium';
         break;
       case 'high':
-        taskItem.classList.add('priority-high');
+        taskItem.className = '';
+        taskItem.classList.add('task-item', 'priority-high');
         priorityLevel.textContent = 'High';
         break;
       default:
-        taskItem.classList.add('priority-none');
+        taskItem.className = '';
+        taskItem.classList.add('task-item', 'priority-none');
         priorityLevel.textContent = 'None';
         break;
     }
@@ -464,11 +483,21 @@ const main = (() => {
     updateTaskIndices(taskIndex);
   };
 
+  const renderMain = (project, projectIndex) => {
+    renderHeader(project);
+    setNewTaskBtnIndex(projectIndex);
+    clearTasks();
+    if (project.tasks.length > 0) {
+      project.tasks.forEach((task) =>
+        renderTask(projectIndex, project.tasks.indexOf(task)),
+      );
+    }
+  };
+
   /* Function to invoke on initilise, for the component to work properly */
   const init = () => {
     const firstProject = projectManager.revealProject(0);
-    renderHeader(firstProject);
-    setNewTaskBtnIndex(0);
+    renderMain(firstProject, 0);
     addNewTaskBtnListener();
   };
 
@@ -480,6 +509,7 @@ const main = (() => {
     renderTaskContent,
     renderTask,
     renderDeletedTask,
+    renderMain,
     init,
   };
 })();
@@ -555,6 +585,7 @@ const newListModal = (() => {
     const descriptionInput = document.getElementById(
       'new-list-description',
     ).value;
+    const index = document.getElementById('nav-todo-lists').children.length;
 
     if (titleInput !== '') {
       e.preventDefault();
@@ -564,6 +595,7 @@ const newListModal = (() => {
         descriptionInput,
       );
       navbar.renderNewList(newList, navbar.calculateNewProjectIndex());
+      main.renderMain(projectManager.revealProject(index + 1), index + 1);
 
       allModals.closeModal(modal);
     }
@@ -611,7 +643,9 @@ const editListModal = (() => {
       e.preventDefault();
       projectManager.editProjectTitle(index, titleInput);
       projectManager.editProjectDescription(index, descriptionInput);
-      navbar.renderEditedList(index, projectManager.revealProject(index));
+      const editedProject = projectManager.revealProject(index);
+      navbar.renderEditedList(index, editedProject);
+      main.renderMain(editedProject, index);
       allModals.closeModal(modal);
     }
   };
@@ -645,6 +679,7 @@ const deleteListModal = (() => {
     const index = Number(deleteBtn.dataset.projectIndex);
     projectManager.deleteProject(index);
     navbar.renderDeletedList(index);
+    main.renderMain(projectManager.revealProject(0), 0);
     toggleHidden(modal);
   };
 
@@ -740,16 +775,11 @@ const editTaskModal = (() => {
     editBtn.dataset.taskIndex = taskIndex;
   };
 
-  /* const setStepsDataLength = (stepsLength) => {
-    editBtn.dataset.stepsLength = stepsLength;
-  }; */
-
   const openEditTaskModal = (projectIndex, taskIndex) => {
     const taskToEdit = taskManager.revealTask(projectIndex, taskIndex);
 
     setProjectDataIndex(projectIndex);
     setTaskDataIndex(taskIndex);
-    /* setStepsDataLength(taskToEdit.steps.length); */
     titleInput.value = taskToEdit.title;
     descriptionInput.value = taskToEdit.description;
     taskToEdit.steps.forEach((step) =>
@@ -1107,18 +1137,6 @@ const stepsComponent = (() => {
 
   /* Function to invoke on initilise, for the component to work properly */
   const addNewStepBtnListeners = () => {
-    /* newStepBtns.forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        if (e.target.closest('.new-task-modal')) {
-          modal = e.target.closest('.new-task-modal').parentElement;
-        } else if (e.target.closest('.edit-task-modal')) {
-          modal = e.target.closest('.edit-task-modal').parentElement;
-        }
-        stepsList = modal.querySelector('.modal-steps-list');
-        newStepBtn = modal.querySelector('.add-step-button');
-        renderCreateStep(e);
-      });
-    }); */
     addStepBtnNew.addEventListener('click', (e) =>
       renderCreateStep(e, stepsListNew, addStepBtnNew),
     );
@@ -1136,9 +1154,7 @@ const stepsComponent = (() => {
 const initialiseUI = () => {
   header.addHeaderListeners();
 
-  navbar.renderCurrentLists();
-  navbar.setInboxProjectIndex();
-  navbar.addNewListBtnListener();
+  navbar.init();
 
   main.init();
 
