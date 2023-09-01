@@ -34,9 +34,26 @@ import { projectManager, taskManager, stepManager } from './toDoList';
 const toggleHidden = (element) => {
   element.classList.toggle('hidden');
 };
-/* **************************************************************
 
-************************************************************** */
+const hasDatePast = (date) => {
+  const dateToCompare = date.split('-');
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentDay = currentDate.getDate();
+
+  if (
+    currentYear > Number(dateToCompare[0]) ||
+    (currentYear === Number(dateToCompare[0]) &&
+      currentMonth > Number(dateToCompare[1])) ||
+    (currentYear === Number(dateToCompare[0]) &&
+      currentMonth === Number(dateToCompare[1]) &&
+      currentDay > Number(dateToCompare[2]))
+  ) {
+    return true;
+  }
+  return false;
+};
 
 /* **************************************************************
 - Header module
@@ -333,9 +350,15 @@ const main = (() => {
     if (task.dueDate !== '') {
       const dateSpan = taskItem.querySelector('.task-info');
       const taskDueDate = taskItem.querySelector('.task-due-date');
+      const isLate = taskItem.querySelector('.task-date-info');
 
       dateSpan.textContent = 'Due by: ';
       taskDueDate.textContent = task.dueDate;
+      if (hasDatePast(task.dueDate) === true) {
+        isLate.textContent = 'Late!';
+      } else {
+        isLate.textContent = '';
+      }
     }
   };
 
@@ -931,11 +954,6 @@ const deleteTaskModal = (() => {
 - Steps component module
 ************************************************************** */
 const stepsComponent = (() => {
-  /* const newStepBtns = document.querySelectorAll('.add-step-button');
-  let modal;
-  let stepsList;
-  let newStepBtn; */
-
   /* Variables for the 'New task' modal */
   const modalNew = document.querySelector('.new-task-modal').parentElement;
   const stepsListNew = modalNew.querySelector('.modal-steps-list');
@@ -1030,10 +1048,6 @@ const stepsComponent = (() => {
     const stepToEdit = e.target.closest('li');
     const input = stepToEdit.querySelector('input');
     const submitStepBtn = input.nextElementSibling;
-    /* const editStepBtn = document.createElement('button');
-    const editStepImg = document.createElement('img');
-    const deleteStepBtn = document.createElement('button');
-    const deleteStepImg = document.createElement('img'); */
 
     if (editedStepValue !== '') {
       e.preventDefault();
