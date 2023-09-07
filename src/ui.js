@@ -7,6 +7,8 @@
 	- Navbar module
 
   - Main module
+
+  - Aside module
 	
 	- Module to control things common most modals
 
@@ -538,6 +540,58 @@ const main = (() => {
 })();
 
 /* **************************************************************
+- Aside module
+************************************************************** */
+const aside = (() => {
+  /* const filtersAside = document.querySelector('aside'); */
+  const mainTasks = document.querySelector('.unfinished-tasks');
+  const searchbar = document.getElementById('search-tasks');
+
+  const searchForMatch = () => {
+    const index = Number(
+      document.getElementById('main-new-task-button').dataset.projectIndex,
+    );
+    const currentProject = projectManager.revealProject(index);
+    const textToCompare = searchbar.value;
+    const filterTasks = (task) => {
+      if (
+        task.title.toLowerCase().includes(textToCompare.toLowerCase()) ||
+        task.description.toLowerCase().includes(textToCompare.toLowerCase()) ||
+        task.steps.filter((step) =>
+          step.description.toLowerCase().includes(textToCompare.toLowerCase()),
+        ).length > 0
+      ) {
+        main.renderTask(index, currentProject.tasks.indexOf(task));
+        return true;
+      }
+      return false;
+    };
+
+    if (textToCompare !== '') {
+      main.clearTasks();
+      const filteredTasks = currentProject.tasks.filter((task) =>
+        filterTasks(task),
+      );
+      if (filteredTasks.length === 0) {
+        const noTasksMessage = document.createElement('p');
+        noTasksMessage.textContent = 'No matches found';
+        mainTasks.appendChild(noTasksMessage);
+      }
+    } else if (textToCompare === '') {
+      main.clearTasks();
+      main.renderMain(currentProject, index);
+    }
+  };
+
+  /* Function to invoke on initilise, for the component to work properly */
+  const addSearchbarLIstener = () => {
+    searchbar.addEventListener('keyup', searchForMatch);
+  };
+
+  return { searchForMatch, addSearchbarLIstener };
+})();
+
+/* **************************************************************
 - Module to control things common most modals
 ************************************************************** */
 const allModals = (() => {
@@ -837,7 +891,6 @@ const editTaskModal = (() => {
         priorityInput.value,
       );
       if (oldSteps.length > 0 && editedSteps.length > 0) {
-        console.log('Both have steps');
         for (
           let i = 0;
           i < Math.min(oldSteps.length, editedSteps.length);
@@ -861,14 +914,12 @@ const editTaskModal = (() => {
           }
         }
         if (oldSteps.length > editedSteps.length) {
-          console.log('There are less steps than before');
           let i = oldSteps.length - 1;
           while (i >= editedSteps.length) {
             stepManager.deleteStep(projectIndex, taskIndex, i);
             i--;
           }
         } else if (oldSteps.length < editedSteps.length) {
-          console.log('There are more steps than before');
           for (let i = oldSteps.length; i < editedSteps.length; i++) {
             stepManager.createNewStep(
               projectIndex,
@@ -879,7 +930,6 @@ const editTaskModal = (() => {
           }
         }
       } else if (oldSteps.length === 0 && editedSteps.length > 0) {
-        console.log('No old steps, add new ones');
         editedSteps.forEach((step) => {
           stepManager.createNewStep(
             projectIndex,
@@ -889,7 +939,6 @@ const editTaskModal = (() => {
           );
         });
       } else if (oldSteps.length > 0 && editedSteps.length === 0) {
-        console.log('Delete all old steps');
         let i = oldSteps.length - 1;
         while (i >= 0) {
           stepManager.deleteStep(projectIndex, taskIndex, i);
@@ -1185,6 +1234,8 @@ const initialiseUI = () => {
   deleteTaskModal.addDeleteBtnListener();
 
   stepsComponent.addNewStepBtnListeners();
+
+  aside.addSearchbarLIstener();
 };
 
 export default initialiseUI;
