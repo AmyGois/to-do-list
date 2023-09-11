@@ -545,7 +545,9 @@ const main = (() => {
 const aside = (() => {
   /* const filtersAside = document.querySelector('aside'); */
   const mainTasks = document.querySelector('.unfinished-tasks');
+  const mainFinished = document.querySelector('.finished-tasks');
   const searchbar = document.getElementById('search-tasks');
+  const orderOptions = document.getElementById('order-options');
 
   const searchForMatch = () => {
     const index = Number(
@@ -578,8 +580,172 @@ const aside = (() => {
         mainTasks.appendChild(noTasksMessage);
       }
     } else if (textToCompare === '') {
-      main.clearTasks();
       main.renderMain(currentProject, index);
+    }
+  };
+
+  const sortAToZ = () => {
+    const tasksToDo = Array.from(mainTasks.querySelectorAll('.task-row'));
+    const tasksDone = Array.from(mainFinished.querySelectorAll('.task-row'));
+    tasksToDo.sort((a, b) => {
+      const aTitle = a.querySelector('label');
+      const bTitle = b.querySelector('label');
+      if (aTitle.textContent.toLowerCase() < bTitle.textContent.toLowerCase()) {
+        mainTasks.insertBefore(a, b);
+        return -1;
+      }
+      if (aTitle.textContent.toLowerCase() > bTitle.textContent.toLowerCase()) {
+        mainTasks.insertBefore(b, a);
+        return 1;
+      }
+      return 0;
+    });
+    tasksDone.sort((a, b) => {
+      const aTitle = a.querySelector('label');
+      const bTitle = b.querySelector('label');
+      if (aTitle.textContent.toLowerCase() < bTitle.textContent.toLowerCase()) {
+        mainFinished.insertBefore(a, b);
+        return -1;
+      }
+      if (aTitle.textContent.toLowerCase() > bTitle.textContent.toLowerCase()) {
+        mainFinished.insertBefore(b, a);
+        return 1;
+      }
+      return 0;
+    });
+  };
+
+  const sortZToA = () => {
+    const tasksToDo = Array.from(mainTasks.querySelectorAll('.task-row'));
+    const tasksDone = Array.from(mainFinished.querySelectorAll('.task-row'));
+    tasksToDo.sort((a, b) => {
+      const aTitle = a.querySelector('label');
+      const bTitle = b.querySelector('label');
+      if (aTitle.textContent.toLowerCase() > bTitle.textContent.toLowerCase()) {
+        mainTasks.insertBefore(a, b);
+        return -1;
+      }
+      if (aTitle.textContent.toLowerCase() < bTitle.textContent.toLowerCase()) {
+        mainTasks.insertBefore(b, a);
+        return 1;
+      }
+      return 0;
+    });
+    tasksDone.sort((a, b) => {
+      const aTitle = a.querySelector('label');
+      const bTitle = b.querySelector('label');
+      if (aTitle.textContent.toLowerCase() > bTitle.textContent.toLowerCase()) {
+        mainFinished.insertBefore(a, b);
+        return -1;
+      }
+      if (aTitle.textContent.toLowerCase() < bTitle.textContent.toLowerCase()) {
+        mainFinished.insertBefore(b, a);
+        return 1;
+      }
+      return 0;
+    });
+  };
+
+  const filterPriority = (task, priorityLevel, projectIndex, taskIndex) => {
+    if (task.priority === priorityLevel) {
+      main.renderTask(projectIndex, taskIndex);
+      if (task.status === 'done') {
+        const renderedTask = mainFinished.querySelector(
+          `.task-row[data-task-index='${taskIndex}']`,
+        );
+        mainFinished.appendChild(renderedTask);
+      }
+      return true;
+    }
+    return false;
+  };
+
+  const orderTasks = () => {
+    const index = Number(
+      document.getElementById('main-new-task-button').dataset.projectIndex,
+    );
+    const currentProject = projectManager.revealProject(index);
+
+    switch (orderOptions.value) {
+      case 'priority-highest':
+        main.clearTasks();
+        currentProject.tasks.filter((task) =>
+          filterPriority(
+            task,
+            'high',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        currentProject.tasks.filter((task) =>
+          filterPriority(
+            task,
+            'medium',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        currentProject.tasks.filter((task) =>
+          filterPriority(
+            task,
+            'low',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        currentProject.tasks.filter((task) =>
+          filterPriority(
+            task,
+            'none',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        break;
+      case 'priority-lowest':
+        main.clearTasks();
+        currentProject.tasks.filter((task) =>
+          filterPriority(
+            task,
+            'none',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        currentProject.tasks.filter((task) =>
+          filterPriority(
+            task,
+            'low',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        currentProject.tasks.filter((task) =>
+          filterPriority(
+            task,
+            'medium',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        currentProject.tasks.filter((task) =>
+          filterPriority(
+            task,
+            'high',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        break;
+      case 'A-Z':
+        sortAToZ();
+        break;
+      case 'Z-A':
+        sortZToA();
+        break;
+      default:
+        main.renderMain(currentProject, index);
+        break;
     }
   };
 
@@ -588,7 +754,11 @@ const aside = (() => {
     searchbar.addEventListener('keyup', searchForMatch);
   };
 
-  return { searchForMatch, addSearchbarLIstener };
+  const addOrderOptionsListener = () => {
+    orderOptions.addEventListener('change', orderTasks);
+  };
+
+  return { addSearchbarLIstener, addOrderOptionsListener };
 })();
 
 /* **************************************************************
@@ -1236,6 +1406,7 @@ const initialiseUI = () => {
   stepsComponent.addNewStepBtnListeners();
 
   aside.addSearchbarLIstener();
+  aside.addOrderOptionsListener();
 };
 
 export default initialiseUI;
