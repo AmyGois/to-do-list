@@ -550,6 +550,7 @@ const aside = (() => {
   const orderOptions = document.getElementById('order-options');
   const priorityFilter = document.getElementById('filter-priority-options');
   const statusFilter = document.getElementById('filter-status-options');
+  const clearAllBtn = document.getElementById('aside-clear-filters-button');
 
   const searchForMatch = () => {
     const index = Number(
@@ -811,12 +812,6 @@ const aside = (() => {
   const filterStatus = (task, taskStatus, projectIndex, taskIndex) => {
     if (task.status === taskStatus) {
       main.renderTask(projectIndex, taskIndex);
-      /* if (task.status === 'done') {
-        const renderedTask = mainFinished.querySelector(
-          `.task-row[data-task-index='${taskIndex}']`,
-        );
-        mainFinished.appendChild(renderedTask);
-      } */
       return true;
     }
     return false;
@@ -852,6 +847,21 @@ const aside = (() => {
     }
   };
 
+  const clearAllFilters = () => {
+    const index = Number(
+      document.getElementById('main-new-task-button').dataset.projectIndex,
+    );
+    const currentProject = projectManager.revealProject(index);
+    const orderNone = orderOptions.querySelector('option');
+    const priorityAll = priorityFilter.querySelector('option');
+    const statusAll = statusFilter.querySelector('option');
+    searchbar.value = '';
+    orderNone.selected = true;
+    priorityAll.selected = true;
+    statusAll.selected = true;
+    main.renderMain(currentProject, index);
+  };
+
   const addSearchbarLIstener = () => {
     searchbar.addEventListener('keyup', searchForMatch);
   };
@@ -868,12 +878,17 @@ const aside = (() => {
     statusFilter.addEventListener('change', filterStatusOptions);
   };
 
+  const addClearAllBtnListener = () => {
+    clearAllBtn.addEventListener('click', clearAllFilters);
+  };
+
   /* Function to invoke on initilise, for the component to work properly */
   const init = () => {
     addSearchbarLIstener();
     addOrderOptionsListener();
     addPriorityFilterListener();
     addStatusFilterListener();
+    addClearAllBtnListener();
   };
 
   return { init };
