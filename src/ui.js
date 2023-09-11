@@ -548,6 +548,8 @@ const aside = (() => {
   const mainFinished = document.querySelector('.finished-tasks');
   const searchbar = document.getElementById('search-tasks');
   const orderOptions = document.getElementById('order-options');
+  const priorityFilter = document.getElementById('filter-priority-options');
+  const statusFilter = document.getElementById('filter-status-options');
 
   const searchForMatch = () => {
     const index = Number(
@@ -749,7 +751,107 @@ const aside = (() => {
     }
   };
 
-  /* Function to invoke on initilise, for the component to work properly */
+  const filterPriorityOptions = () => {
+    const index = Number(
+      document.getElementById('main-new-task-button').dataset.projectIndex,
+    );
+    const currentProject = projectManager.revealProject(index);
+
+    switch (priorityFilter.value) {
+      case 'high':
+        main.clearTasks();
+        currentProject.tasks.filter((task) =>
+          filterPriority(
+            task,
+            'high',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        break;
+      case 'medium':
+        main.clearTasks();
+        currentProject.tasks.filter((task) =>
+          filterPriority(
+            task,
+            'medium',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        break;
+      case 'low':
+        main.clearTasks();
+        currentProject.tasks.filter((task) =>
+          filterPriority(
+            task,
+            'low',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        break;
+      case 'none':
+        main.clearTasks();
+        currentProject.tasks.filter((task) =>
+          filterPriority(
+            task,
+            'none',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        break;
+      default:
+        main.renderMain(currentProject, index);
+        break;
+    }
+  };
+
+  const filterStatus = (task, taskStatus, projectIndex, taskIndex) => {
+    if (task.status === taskStatus) {
+      main.renderTask(projectIndex, taskIndex);
+      /* if (task.status === 'done') {
+        const renderedTask = mainFinished.querySelector(
+          `.task-row[data-task-index='${taskIndex}']`,
+        );
+        mainFinished.appendChild(renderedTask);
+      } */
+      return true;
+    }
+    return false;
+  };
+
+  const filterStatusOptions = () => {
+    const index = Number(
+      document.getElementById('main-new-task-button').dataset.projectIndex,
+    );
+    const currentProject = projectManager.revealProject(index);
+
+    switch (statusFilter.value) {
+      case 'to-do':
+        main.clearTasks();
+        currentProject.tasks.filter((task) =>
+          filterStatus(
+            task,
+            'to do',
+            index,
+            currentProject.tasks.indexOf(task),
+          ),
+        );
+        break;
+      case 'done':
+        main.clearTasks();
+        currentProject.tasks.filter((task) =>
+          filterStatus(task, 'done', index, currentProject.tasks.indexOf(task)),
+        );
+        break;
+      default:
+        main.renderMain(currentProject, index);
+        break;
+    }
+  };
+
   const addSearchbarLIstener = () => {
     searchbar.addEventListener('keyup', searchForMatch);
   };
@@ -758,7 +860,23 @@ const aside = (() => {
     orderOptions.addEventListener('change', orderTasks);
   };
 
-  return { addSearchbarLIstener, addOrderOptionsListener };
+  const addPriorityFilterListener = () => {
+    priorityFilter.addEventListener('change', filterPriorityOptions);
+  };
+
+  const addStatusFilterListener = () => {
+    statusFilter.addEventListener('change', filterStatusOptions);
+  };
+
+  /* Function to invoke on initilise, for the component to work properly */
+  const init = () => {
+    addSearchbarLIstener();
+    addOrderOptionsListener();
+    addPriorityFilterListener();
+    addStatusFilterListener();
+  };
+
+  return { init };
 })();
 
 /* **************************************************************
@@ -1391,6 +1509,8 @@ const initialiseUI = () => {
 
   main.init();
 
+  aside.init();
+
   allModals.addCloseBtnListeners();
   allModals.addCloseBackgroundListeners();
 
@@ -1404,9 +1524,6 @@ const initialiseUI = () => {
   deleteTaskModal.addDeleteBtnListener();
 
   stepsComponent.addNewStepBtnListeners();
-
-  aside.addSearchbarLIstener();
-  aside.addOrderOptionsListener();
 };
 
 export default initialiseUI;
